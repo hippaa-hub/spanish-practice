@@ -39,7 +39,7 @@ const Arrow = ({ from, to, y = 20 }: { from: number; to: number; y?: number }) =
   </g>
 );
 
-const ME = { shirt: '#ff6b35', hair: '#6b4428', long: true };
+const ME = { shirt: '#26262e', hair: '#b3202a', long: true, tie: true };
 
 export const PEOPLE: Record<string, JSX.Element> = {
   'p-yo': (

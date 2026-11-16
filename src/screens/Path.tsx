@@ -242,7 +242,16 @@ export const Path = ({
           className="land"
           style={{ background: `linear-gradient(180deg, ${WORLDS[unit.id]?.ground ?? '#fff'} 0%, ${WORLDS[unit.id]?.ground ?? '#fff'}00 100%)` }}
         >
-          <div className="unit-banner" style={{ background: unit.colour }}>
+          <div
+            className={`unit-banner${WORLDS[unit.id]?.banner ? ' has-art' : ''}`}
+            style={
+              WORLDS[unit.id]?.banner
+                ? {
+                    background: `linear-gradient(90deg, ${unit.colour} 38%, ${unit.colour}cc 55%, ${unit.colour}00 85%), url(${import.meta.env.BASE_URL}banners/${WORLDS[unit.id]!.banner}) right center / cover no-repeat, ${unit.colour}`,
+                  }
+                : { background: unit.colour }
+            }
+          >
             <div>
               <div className="eyebrow">Unit {unit.number}</div>
               <h2>{unit.title}</h2>

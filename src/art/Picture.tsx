@@ -511,7 +511,32 @@ const resolve = (name: string): JSX.Element | undefined => {
 /** Is there a real drawing for this name (not the "?" fallback)? */
 export const hasPicture = (name: string): boolean => Boolean(resolve(name));
 
+/**
+ * Pictures drawn in Canva (cartoon sticker style, same as Coco), in public/art/.
+ * Where a Canva picture exists it is used; otherwise the code drawing below is.
+ * Flags, numbers and day letters always use the code drawings, which are exact.
+ */
+export const CANVA_ART = new Set<string>([
+  // drawn in Canva (watercolour anime style) — the rest are still drawn in code
+  'balloon', 'bell', 'bench', 'boat', 'cafe', 'city', 'cloud', 'fish', 'flower', 'fountain', 'house', 'iceberg',
+  'kite', 'lightning', 'mountain', 'palm', 'plane', 'school', 'sea', 'shell', 'tree', 'umbrella',
+  'wave', 'p-yo', 'p-nosotras',
+]);
+
 export const Picture = ({ name, size = 72 }: { name?: string; size?: number }) => {
+  if (name && CANVA_ART.has(name)) {
+    return (
+      <img
+        src={`${import.meta.env.BASE_URL}art/${name}.png`}
+        width={size}
+        height={size}
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+        className="canva-art"
+      />
+    );
+  }
   let body: JSX.Element | undefined = name ? resolve(name) : undefined;
   if (!body) body = shapes.question;
   return (

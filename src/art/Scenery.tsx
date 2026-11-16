@@ -170,9 +170,9 @@ const S: Record<string, JSX.Element> = {
 export const scenery = (name: string): JSX.Element | undefined => S[name];
 
 /** Each unit's little world: a soft ground colour and the things growing beside the road. */
-export const WORLDS: Record<string, { ground: string; props: string[] }> = {
+export const WORLDS: Record<string, { ground: string; props: string[]; banner?: string }> = {
   u0: { ground: '#f3ecff', props: ['abc', 'flower', 'tree', 'flower', 'abc'] },
-  u1: { ground: '#fff2dc', props: ['palm', 'umbrella', 'shell', 'boat', 'palm'] },
+  u1: { ground: '#fff2dc', props: ['palm', 'umbrella', 'shell', 'boat', 'palm'], banner: 'u1.jpg' },
   u2: { ground: '#e9f8f3', props: ['house', 'tree', 'fountain', 'city', 'tree'] },
   u3: { ground: '#eaf4ff', props: ['tree', 'bench', 'kite', 'balloon', 'tree'] },
   u4: { ground: '#f1efff', props: ['mountain', 'lightning', 'cloud', 'mountain', 'lightning'] },

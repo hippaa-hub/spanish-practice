@@ -1,7 +1,18 @@
 import type { Look } from '../content/types';
 
 /** A friendly round face for a story character, drawn from a few colours. */
-export const Avatar = ({ look, size = 44, talking = false }: { look: Look; size?: number; talking?: boolean }) => (
+export const Avatar = ({ look, size = 44, talking = false }: { look: Look; size?: number; talking?: boolean }) =>
+  look.pic ? (
+    <img
+      src={`${import.meta.env.BASE_URL}cast/${look.pic}.png`}
+      width={size}
+      height={size}
+      alt=""
+      aria-hidden="true"
+      draggable={false}
+      className={`avatar-pic${talking ? ' talking' : ''}`}
+    />
+  ) : (
   <svg viewBox="0 0 100 100" width={size} height={size} role="img" aria-hidden="true">
     <circle cx="50" cy="50" r="48" fill={talking ? '#fff3e6' : '#f4efe8'} />
     {look.long && <path d="M22 52 Q20 86 34 92 H66 Q80 86 78 52z" fill={look.hair} />}
@@ -26,4 +37,4 @@ export const Avatar = ({ look, size = 44, talking = false }: { look: Look; size?
       <path d="M44 57 q6 5 12 0" stroke="#3b3a4a" strokeWidth="2.5" fill="none" strokeLinecap="round" />
     )}
   </svg>
-);
+  );

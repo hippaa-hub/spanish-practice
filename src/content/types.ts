@@ -122,6 +122,8 @@ export type Look = {
   skin: string;
   hair: string;
   shirt: string;
+  /** A drawn portrait in public/cast/ (Canva). Without one, the face is drawn in code. */
+  pic?: string;
   long?: boolean;
   glasses?: boolean;
   grownUp?: boolean;

@@ -753,3 +753,12 @@ body {
 .level-bar { position: relative; display: block; height: 9px; border-radius: 999px; background: #e9e3da; overflow: visible; }
 .level-bar i { display: block; height: 100%; border-radius: 999px; }
 .level-bar em { position: absolute; top: -3px; width: 3px; height: 15px; border-radius: 2px; background: var(--ink-soft); opacity: 0.55; }
+
+/* Canva pictures have a white background: multiply makes it disappear on light backgrounds */
+.canva-art { object-fit: contain; user-select: none; -webkit-user-drag: none; }
+
+/* Canva portraits for story characters: a round face crop */
+.avatar-pic { border-radius: 50%; object-fit: cover; background: #f4efe8; box-shadow: 0 0 0 2px #fff; flex: none; }
+.avatar-pic.talking { box-shadow: 0 0 0 3px #ff9f1c; }
+.unit-banner.has-art::after { display: none; }
+.unit-banner.has-art .banner-side .tips-btn { backdrop-filter: blur(2px); }
