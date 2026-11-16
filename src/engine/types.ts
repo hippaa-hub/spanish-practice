@@ -72,6 +72,8 @@ export type Progress = {
   notifyTopic?: string;
   /** Today's three tasks, chosen in the morning. */
   today?: import('./today').DayPlan;
+  /** YYYY-MM-DD -> how many words were mastered that day, to show growth. */
+  masteryLog?: Record<string, number>;
 };
 
 export type WritingDraft = {

@@ -72,6 +72,7 @@ export const Lesson = ({
   progress,
   exercises,
   title,
+  mastered,
   onAnswer,
   onFinish,
   onQuit,
@@ -83,6 +84,8 @@ export const Lesson = ({
   /** A ready-made session (Fix my mistakes, Words, Verbs) instead of a path node. */
   exercises?: Exercise[];
   title?: string;
+  /** Words mastered right now — the finish screen shows how many this lesson added. */
+  mastered?: number;
   onAnswer: (itemIds: string[], correct: boolean) => void;
   onFinish: (result: { xp: number; mistakes: number; asked: number }) => void;
   onQuit: () => void;
@@ -105,6 +108,7 @@ export const Lesson = ({
   const [asked, setAsked] = useState(0);
   const [done, setDone] = useState<{ xp: number } | null>(null);
   const [retried, setRetried] = useState<string[]>([]);
+  const [masteredAtStart] = useState(mastered ?? 0);
 
   const e = queue[pos];
 
@@ -233,6 +237,12 @@ export const Lesson = ({
         <Coco mood="cheer" size={140} />
         <h1>¡Lección completa!</h1>
         <p style={{ color: 'var(--ink-soft)', margin: 0 }}>{title ?? `${unit?.title} · ${node?.title}`}</p>
+        {mastered !== undefined && (
+          <p className="mastered-line">
+            🐾 {mastered} words mastered
+            {mastered > masteredAtStart ? <span className="good"> (+{mastered - masteredAtStart} in this lesson!)</span> : ''}
+          </p>
+        )}
         <div className="scoreboard">
           <div className="score" style={{ background: 'var(--sun)' }}>
             <div>

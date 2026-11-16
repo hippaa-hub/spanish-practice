@@ -1,7 +1,8 @@
 import { Coco } from '../art/Coco';
 import { ReportCard } from '../components/Celebrations';
 import { addDays, dayKey } from '../engine/dates';
-import { BADGES, bestStreak, weekReport, weekStart, wordsLearned } from '../engine/badges';
+import { BADGES, bestStreak, weekReport, weekStart } from '../engine/badges';
+import { LEVELS, levelsReached, masteredCount } from '../engine/mastery';
 import { GOAL_OPTIONS } from '../engine/progress';
 import type { Progress } from '../engine/types';
 
@@ -33,11 +34,13 @@ export const Profile = ({
   onGoal,
   onParents,
   onBack,
+  onProgress,
 }: {
   progress: Progress;
   onGoal: (goal: number) => void;
   onParents: () => void;
   onBack: () => void;
+  onProgress: () => void;
 }) => {
   const p = progress;
   return (
@@ -48,8 +51,9 @@ export const Profile = ({
         <div>
           <h1 style={{ margin: 0 }}>Mi perfil</h1>
           <p className="lead" style={{ margin: 0 }}>
-            🔥 {p.streak} days · ⚡ {p.xpTotal} XP · 📚 {wordsLearned(p)} words learned
+            🐾 {masteredCount(p)} words mastered · Nivel {levelsReached(p)} of {LEVELS.length}
           </p>
+          <button className="link-btn" style={{ paddingLeft: 0 }} onClick={onProgress}>See my level map ›</button>
         </div>
       </div>
 

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Avatar } from '../art/Avatar';
 import { Coco } from '../art/Coco';
-import { PAW_PATH } from '../art/Paw';
+import { Paw, PAW_PATH } from '../art/Paw';
+import { LEVELS, levelsReached, masteredCount, weekGain } from '../engine/mastery';
 import { Picture } from '../art/Picture';
 import { WORLDS } from '../art/Scenery';
 import { CocoCoach } from '../components/CocoCoach';
@@ -185,12 +186,14 @@ export const Path = ({
   onTips,
   onTask,
   onChoice,
+  onProgress,
 }: {
   progress: Progress;
   onStart: (node: PathNode, unit: Unit) => void;
   onTips: (unit: Unit) => void;
   onTask: (task: DayTask) => void;
   onChoice: (choice: ChoiceKind, task: DayTask) => void;
+  onProgress: () => void;
 }) => {
   const next = nextNodeId(progress);
   const built = units.find((u) => u.id === (currentClass.unitId ?? currentClass.practiseUnitId));
@@ -219,6 +222,18 @@ export const Path = ({
       </div>
 
       <CocoCoach progress={progress} />
+      <button className="progress-strip" onClick={onProgress}>
+        <Paw size={26} colour="#ff9fb4" rotate={-12} />
+        <span className="num">{masteredCount(progress)}</span>
+        <span>
+          <b>words mastered</b>
+          {weekGain(progress) > 0 ? ` · +${weekGain(progress)} this week` : ''}
+          <br />
+          Nivel {levelsReached(progress)} of {LEVELS.length} · see your level map
+        </span>
+        <span className="go">›</span>
+      </button>
+
       <TodayCard plan={progress.today} onTask={onTask} onChoice={onChoice} />
 
       {units.map((unit) => (

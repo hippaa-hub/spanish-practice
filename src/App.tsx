@@ -12,6 +12,8 @@ import { completeTask, dayDone, ensureToday, type ChoiceKind, type DayTask } fro
 import { pickMistakes } from './engine/teach';
 import type { CocoMistake } from './content/cocoMistakes';
 import { TeachCoco } from './screens/TeachCoco';
+import { MyProgress } from './screens/MyProgress';
+import { logMastery, masteredCount } from './engine/mastery';
 import { ME_PRESENTO } from './engine/writing';
 import { Coco } from './art/Coco';
 import { Confetti } from './art/Confetti';
@@ -38,7 +40,7 @@ import { answerSet, repeatSet, SpeakHome, SpeakSession, type SpeakSet } from './
 import { WriteCoach, WriteHome } from './screens/Write';
 import { getTask, type WritingTask } from './engine/writing';
 
-type Tab = 'path' | 'stories' | 'speak' | 'write' | 'practice' | 'words' | 'profile' | 'parents';
+type Tab = 'path' | 'stories' | 'speak' | 'write' | 'practice' | 'words' | 'profile' | 'parents' | 'progress';
 
 type View =
   | { screen: 'tab'; tab: Tab }
@@ -191,6 +193,11 @@ export const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Keep a daily record of words mastered, so she can see it grow week by week.
+  useEffect(() => {
+    if (loaded && view.screen === 'tab') setProgress((p) => logMastery(p));
+  }, [loaded, view.screen, progress.memory]);
+
   // A new day while the app stayed open: make today's tasks.
   useEffect(() => {
     if (loaded && view.screen === 'tab' && progress.today?.day !== dayKey()) {
@@ -303,6 +310,7 @@ export const App = () => {
           exercises={lesson.exercises}
           title={lesson.title}
           progress={progress}
+          mastered={masteredCount(progress)}
           onAnswer={(itemIds, correct) => setProgress((p) => remember(p, itemIds, correct))}
           onFinish={({ xp, mistakes, asked }) =>
             setProgress((p) => {
@@ -399,6 +407,7 @@ export const App = () => {
           onTips={setTips}
           onTask={startTask}
           onChoice={startChoice}
+          onProgress={() => setView({ screen: 'tab', tab: 'progress' })}
         />
       )}
       {tab === 'stories' && (
@@ -418,6 +427,7 @@ export const App = () => {
         />
       )}
       {tab === 'words' && <Words progress={progress} onBack={() => setView({ screen: 'tab', tab: 'practice' })} />}
+      {tab === 'progress' && <MyProgress progress={progress} onBack={() => setView({ screen: 'tab', tab: 'path' })} />}
       {tab === 'profile' && (
         <Profile
           progress={progress}
@@ -427,6 +437,7 @@ export const App = () => {
             setView({ screen: 'tab', tab: 'parents' });
           }}
           onBack={() => setView({ screen: 'tab', tab: 'path' })}
+          onProgress={() => setView({ screen: 'tab', tab: 'progress' })}
         />
       )}
       {tab === 'parents' && (

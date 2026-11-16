@@ -178,3 +178,9 @@ and the protégé effect): today's three tasks can be done in any order, and tas
 3 is her choice of Teach Coco / a story / speaking / writing. **Teach Coco**
 (`src/content/cocoMistakes.ts`, 35 sentences, units 1–9): she finds Coco's
 mistake, picks the fix and explains why; also in Práctica.
+
+**Progress she can see** (16 Nov 2026): words mastered (half-life ≥ 8 days and
+still known today — fades if not practised), weekly growth, and a "Mi nivel"
+level map (one "I can…" per unit, reached at 60% of its words mastered).
+Shown as a strip on the map, a Mi progreso screen, the profile, and a line on
+every lesson's finish screen. Logic in `src/engine/mastery.ts`.

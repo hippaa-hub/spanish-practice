@@ -717,3 +717,39 @@ body {
 .choice-pick small { font-size: 9.5px; color: var(--ink-soft); line-height: 1.1; text-align: center; }
 .choice-pick:active { transform: scale(0.95); }
 .practice-card.teach-card { border-color: #ffd9bf; background: linear-gradient(120deg, #fff3e6, #fff); }
+
+/* ---------- my progress ---------- */
+.mastery-hero { display: flex; align-items: center; gap: 14px; background: linear-gradient(120deg, #fffbea, #fff3e6); border: 3px solid #ffe08a; border-radius: 22px; padding: 14px 16px; }
+.mastery-hero .big-number { font-family: var(--title); font-weight: 700; font-size: 54px; line-height: 1; color: var(--warm); }
+.mastery-hero b { display: block; font-size: 18px; }
+.mastery-hero span { font-size: 13px; color: var(--ink-soft); font-weight: 700; }
+.week-bars { display: flex; align-items: flex-end; gap: 8px; height: 120px; padding-top: 16px; }
+.week-bar { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; }
+.week-bar i { display: block; width: 70%; border-radius: 8px 8px 3px 3px; background: #ffd29b; }
+.week-bar i.now { background: var(--warm); }
+.week-bar .n { font-size: 11px; font-weight: 900; color: var(--ink-soft); }
+.week-bar small { font-size: 10px; color: var(--ink-soft); }
+.level-map { position: relative; display: grid; gap: 10px; padding-left: 4px; }
+.level-map::before { content: ''; position: absolute; left: 25px; top: 20px; bottom: 20px; width: 4px; border-radius: 4px; background: repeating-linear-gradient(#e8dcc4 0 8px, transparent 8px 14px); }
+.level { position: relative; display: flex; align-items: center; gap: 10px; background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 10px; }
+.level.working { border-color: var(--warm); box-shadow: 0 3px 0 #ffd9bf; }
+.level.done { border-color: #ffe08a; background: #fffbea; }
+.level-badge { flex: none; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--title); font-weight: 700; font-size: 18px; box-shadow: 0 3px 0 rgba(0,0,0,0.15); z-index: 1; }
+.level-text { flex: 1; min-width: 0; }
+.level-text b { display: block; font-size: 14px; line-height: 1.25; }
+.level-text small { display: block; font-size: 11px; color: var(--ink-soft); margin: 2px 0 5px; }
+.level-text .strength { display: block; }
+.level.done .level-text b::after { content: ' ✓'; color: var(--green-dark); }
+.progress-strip {
+  width: 100%; display: flex; align-items: center; gap: 10px; text-align: left; color: var(--ink);
+  background: linear-gradient(120deg, #fffbea, #fff); border: 2px solid #ffe08a; border-radius: 18px; padding: 10px 12px; margin-bottom: 14px;
+}
+.progress-strip .num { font-family: var(--title); font-weight: 700; font-size: 26px; color: var(--warm); }
+.progress-strip span { font-size: 13px; color: var(--ink-soft); font-weight: 700; }
+.progress-strip b { color: var(--ink); }
+.progress-strip .go { margin-left: auto; font-size: 20px; color: var(--ink-soft); }
+.mastered-line { margin: 0 0 18px; font-weight: 800; color: var(--ink); font-size: 15px; }
+.mastered-line .good { color: var(--green-dark); }
+.level-bar { position: relative; display: block; height: 9px; border-radius: 999px; background: #e9e3da; overflow: visible; }
+.level-bar i { display: block; height: 100%; border-radius: 999px; }
+.level-bar em { position: absolute; top: -3px; width: 3px; height: 15px; border-radius: 2px; background: var(--ink-soft); opacity: 0.55; }
