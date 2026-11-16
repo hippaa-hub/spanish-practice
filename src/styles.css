@@ -652,3 +652,15 @@ body {
 }
 .finish h1 { font-size: 29px; white-space: nowrap; }
 .finish h1::before, .finish h1::after { width: 20px; height: 20px; margin: 0 5px; }
+
+/* ---------- locked path ---------- */
+.map .node.locked { background: #e3ded6; box-shadow: 0 6px 0 #c9c3b9; opacity: 1; }
+.map .node.locked .node-icon { filter: grayscale(1); opacity: 0.7; font-size: 24px; }
+.map .node.locked .node-crowns { display: none; }
+.start-bubble.class { color: var(--teal-dark); border-color: #bfeee9; }
+.path-toast {
+  position: fixed; left: 16px; right: 16px; margin: 0 auto; bottom: calc(env(safe-area-inset-bottom) + 92px);
+  max-width: 500px; z-index: 30; display: flex; align-items: center; gap: 8px;
+  background: #3b3a4a; color: #fff; border-radius: 16px; padding: 8px 12px; font-size: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2); animation: popin 0.2s ease-out;
+}

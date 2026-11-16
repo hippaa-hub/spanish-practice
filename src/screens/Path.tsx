@@ -10,6 +10,7 @@ import { getStory } from '../content/stories';
 import type { PathNode, Unit } from '../content/types';
 import { readiness } from '../engine/badges';
 import { nodeLevel } from '../engine/progress';
+import { blockedBy, frontier, isOpen } from '../engine/path';
 import type { Progress } from '../engine/types';
 
 const CROWNS = 4;
@@ -21,15 +22,8 @@ const SWING = [0, 0.55, 0.9, 0.55, 0, -0.55, -0.9, -0.55];
 const isDone = (p: Progress, node: PathNode): boolean =>
   nodeLevel(p, node.id) >= CROWNS || (node.kind === 'story' && !!node.story && (p.stories[node.story] ?? 0) > 0);
 
-/** The first node she has not finished — the bouncing one. */
-export const nextNodeId = (p: Progress): string | null => {
-  for (const unit of units) {
-    for (const node of unit.nodes) {
-      if (!isDone(p, node)) return node.id;
-    }
-  }
-  return null;
-};
+/** The bouncing one: the first open lesson she has not finished yet. */
+export const nextNodeId = (p: Progress): string | null => frontier(p);
 
 const useWidth = () => {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -71,11 +65,13 @@ const UnitMap = ({
   progress,
   next,
   onStart,
+  onLocked,
 }: {
   unit: Unit;
   progress: Progress;
   next: string | null;
   onStart: (node: PathNode, unit: Unit) => void;
+  onLocked: (node: PathNode) => void;
 }) => {
   const { ref, width } = useWidth();
   const reach = Math.min(100, width * 0.27);
@@ -128,11 +124,14 @@ const UnitMap = ({
       {spots.map(({ node, offset, x, y }, i) => {
         const level = nodeLevel(progress, node.id);
         const done = isDone(progress, node);
+        const open = isOpen(progress, node.id);
         const isNext = node.id === next;
+        // her class's unit is open early: point at its first lesson too
+        const classStart = !isNext && open && level === 0 && !done && unit.id === currentClass.unitId && i === 0;
         const labelLeft = offset > 0;
         const propLeft = offset >= 0;
         const story = node.story ? getStory(node.story) : undefined;
-        const icon = done ? '👑' : node.kind === 'check' ? '🏆' : node.kind === 'story' ? '📖' : node.kind === 'sounds' ? '🔤' : '⭐';
+        const icon = done ? '👑' : !open ? '🔒' : node.kind === 'check' ? '🏆' : node.kind === 'story' ? '📖' : node.kind === 'sounds' ? '🔤' : '⭐';
         const prop = world?.props[i % world.props.length];
         return (
           <div key={node.id}>
@@ -142,16 +141,17 @@ const UnitMap = ({
             </div>
 
             <button
-              className={`node ${node.kind ?? ''} ${done ? 'done' : ''} ${isNext ? 'next' : ''} ${!done && !isNext && level === 0 ? 'locked' : ''}`}
+              className={`node ${node.kind ?? ''} ${done ? 'done' : ''} ${isNext ? 'next' : ''} ${!open ? 'locked' : ''}`}
               style={{
                 left: x - 39,
                 top: y - 35,
-                ...(done || isNext || level > 0 ? { background: done ? undefined : unit.colour } : {}),
+                ...(open && !done && node.kind !== 'story' ? { background: unit.colour } : {}),
               }}
-              onClick={() => onStart(node, unit)}
-              aria-label={node.title}
+              onClick={() => (open ? onStart(node, unit) : onLocked(node))}
+              aria-label={open ? node.title : `${node.title} (locked)`}
             >
               {isNext && <span className="start-bubble">EMPIEZA</span>}
+              {classStart && <span className="start-bubble class">TU CLASE</span>}
               <span className="node-icon">{icon}</span>
               {node.kind !== 'story' && <span className="node-crowns">{level}/{CROWNS}</span>}
             </button>
@@ -188,6 +188,14 @@ export const Path = ({
 }) => {
   const next = nextNodeId(progress);
   const built = units.find((u) => u.id === (currentClass.unitId ?? currentClass.practiseUnitId));
+  const [toast, setToast] = useState<string | null>(null);
+  const timer = useRef<number | null>(null);
+  const locked = (node: PathNode) => {
+    const first = blockedBy(progress, node.id);
+    setToast(first ? `🔒 Finish “${first.title}” first — then this one opens.` : '🔒 Finish the lesson before this one first.');
+    if (timer.current) window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setToast(null), 2600);
+  };
 
   return (
     <main className="path">
@@ -227,9 +235,16 @@ export const Path = ({
               )}
             </div>
           </div>
-          <UnitMap unit={unit} progress={progress} next={next} onStart={onStart} />
+          <UnitMap unit={unit} progress={progress} next={next} onStart={onStart} onLocked={locked} />
         </section>
       ))}
+
+      {toast && (
+        <div className="path-toast" role="status" onClick={() => setToast(null)}>
+          <Coco mood="think" size={44} />
+          <span>{toast}</span>
+        </div>
+      )}
 
       <div className="coco-hello">
         <Coco mood="read" size={90} />

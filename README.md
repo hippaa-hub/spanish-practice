@@ -157,3 +157,10 @@ cheer, oops, think, read, sleep, dance), with the app icon made from him. Lesson
 buttons have cat ears, paw prints walk down the road, XP is shown as 🐟 fish
 treats, and paws appear in the background, the progress bar, the active tab,
 sparkles, confetti, sticker stamps and the finish screen.
+
+**Locked path** (16 Nov 2026): lessons open in order — finishing a lesson once
+(1/4) opens the next one; a story counts when read, a Unit Check when done.
+The unit her class is on now (`currentClass.unitId`) is always open, still in
+order inside it, and anything already started stays open. Tapping a locked
+lesson says which one to finish first. Historias, Hablar, Escribir and
+Práctica are not locked.
