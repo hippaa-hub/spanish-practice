@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Coco } from '../art/Coco';
 import { Confetti } from '../art/Confetti';
+import { Fireworks } from '../art/Effects';
 import { speak, stopSpeaking } from '../audio/speech';
 import { sfxFinish } from '../audio/sfx';
 import { AccentBar } from '../components/AccentBar';
@@ -143,6 +144,7 @@ export const WriteCoach = ({
     return (
       <div className="finish">
         <Confetti />
+        <Fireworks />
         <Coco mood="cheer" size={130} />
         <h1>¡Muy bien escrito!</h1>
         <p style={{ color: 'var(--ink-soft)', margin: 0 }}>{task.title} · {total} sentences</p>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { units } from '../content';
-import { BADGES, bestStreak, earnedBadges, newBadges, unitFinished, verbFormCount, weekReport, weekStart } from './badges';
+import { BADGES, bestStreak, earnedBadges, newBadges, readiness, unitFinished, verbFormCount, weekReport, weekStart } from './badges';
 import { emptyProgress, type Progress } from './types';
 
 const base = (): Progress => emptyProgress();
@@ -76,5 +76,17 @@ describe('weekly report card', () => {
     };
     const r = weekReport(p, '2026-11-20');
     expect(r).toMatchObject({ from: '2026-11-16', to: '2026-11-22', daysPractised: 3, goalDays: 2, xp: 65, minutes: 20, bestDay: '2026-11-19' });
+  });
+});
+
+describe('exam readiness', () => {
+  it('is 0 before she starts and grows as she learns the unit', () => {
+
+    expect(readiness(emptyProgress(), 'u7', '2026-11-16')).toBe(0);
+    const u7 = units.find((u) => u.id === 'u7')!;
+    const memory: Progress['memory'] = {};
+    for (const i of u7.items) memory[i.id] = { id: i.id, lastSeen: '2026-11-16', right: 2, wrong: 0, halfLife: 4 };
+    expect(readiness({ ...emptyProgress(), memory }, 'u7', '2026-11-16')).toBeCloseTo(1);
+    expect(readiness({ ...emptyProgress(), memory }, 'u7', '2026-11-20')).toBeCloseTo(0.5);
   });
 });

@@ -25,6 +25,12 @@ describe('the writing checklist', () => {
     expect(partDone('Me gusta el arte.', part('asignaturas'))).toBe(false);
   });
 
+  it("follows the teacher's iceberg steps: 3 above, 6 below, explain 3, three questions", () => {
+    expect(ICEBERG.parts.map((p) => p.id)).toEqual(['arriba', 'abajo', 'explica', 'reflexion']);
+    const explain = ICEBERG.parts.find((p) => p.id === 'explica')!;
+    expect(partDone('My family is important because they teach me. Me gusta el arte porque es divertido. Hablo tres lenguas because I live in Tbilisi.', explain)).toBe(true);
+  });
+
   it('builds the Identity Iceberg from 3 + 6 + explain + reflect', () => {
     const above = ICEBERG.parts.find((p) => p.id === 'arriba')!;
     expect(partDone('Soy alta. Tengo el pelo largo. Llevo gafas.', above)).toBe(true);

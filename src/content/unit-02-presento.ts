@@ -36,7 +36,7 @@ export const unit2: Unit = {
     { id: 'w.dedondeeres', es: '¿de dónde eres?', en: 'where are you from?', kind: 'phrase', icon: 'globe' },
     { id: 'v.eres', es: 'eres', en: 'you are', kind: 'verbform', icon: 'pointing' },
     { id: 'w.soyde', es: 'soy de', en: 'I am from', kind: 'phrase', icon: 'globe' },
-    { id: 'w.georgiana', es: 'georgiana', en: 'Georgian (a girl)', kind: 'word', icon: 'flagge', alt: ['georgiano'] },
+    { id: 'w.georgiana', es: 'georgiana', en: 'Georgian (a girl)', kind: 'word', icon: 'flag:ge', alt: ['georgiano'] },
     { id: 'w.dondevives', es: '¿dónde vives?', en: 'where do you live?', kind: 'phrase', icon: 'house' },
     { id: 'v.vivo', es: 'vivo', en: 'I live', kind: 'verbform', icon: 'house' },
     { id: 'v.vives', es: 'vives', en: 'you live', kind: 'verbform', icon: 'house' },

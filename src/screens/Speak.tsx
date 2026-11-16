@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Coco } from '../art/Coco';
 import { Confetti } from '../art/Confetti';
+import { Fireworks } from '../art/Effects';
 import { sfxFinish } from '../audio/sfx';
 import { stopSpeaking } from '../audio/speech';
 import { SpeakCard, type SpeakTarget } from '../components/SpeakCard';
@@ -49,7 +50,10 @@ export const SpeakHome = ({ progress, onStart }: { progress: Progress; onStart: 
   const withSentences = units.filter((u) => u.number > 0 && u.sentences.some((s) => !s.gap));
   return (
     <main className="screen">
-      <h1>Hablar</h1>
+      <div className="screen-hero">
+        <Coco mood="cheer" size={76} />
+        <h1>Hablar</h1>
+      </div>
       <p className="lead">
         Speaking is what Duolingo skips and your teacher tests (Criterion C). Listen to Coco, then say it yourself.
         Your recordings stay on this phone and disappear when you close the screen.
@@ -111,6 +115,7 @@ export const SpeakSession = ({
     return (
       <div className="finish">
         <Confetti />
+        <Fireworks />
         <Coco mood="cheer" size={130} />
         <h1>¡Qué bien hablas!</h1>
         <p style={{ color: 'var(--ink-soft)', margin: 0 }}>{set.title}</p>

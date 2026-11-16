@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Coco } from '../art/Coco';
 import { Confetti } from '../art/Confetti';
+import { Fireworks } from '../art/Effects';
 import { sfxFinish } from '../audio/sfx';
 import { getBadge, type WeekReport } from '../engine/badges';
 
@@ -15,6 +16,7 @@ export const BadgeCelebration = ({ ids, onClose }: { ids: string[]; onClose: () 
   return (
     <div className="sheet-backdrop center" onClick={onClose}>
       <Confetti />
+        <Fireworks />
       <div className="sheet pop" onClick={(e) => e.stopPropagation()}>
         <Coco mood="cheer" size={90} />
         <h2>{ids.length > 1 ? '¡Nuevas medallas!' : '¡Nueva medalla!'}</h2>

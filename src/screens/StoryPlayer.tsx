@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Avatar } from '../art/Avatar';
 import { Coco } from '../art/Coco';
 import { Confetti } from '../art/Confetti';
+import { Fireworks, Sparkles } from '../art/Effects';
 import { Picture } from '../art/Picture';
 import { canRecord, playUrl, startRecording, type Recording } from '../audio/recorder';
 import { sfxFinish, sfxRight, sfxWrong } from '../audio/sfx';
@@ -416,6 +417,7 @@ const Questions = ({ story, onDone }: { story: Story; onDone: (right: number) =>
       </div>
 
       <div className={`footer ${verdict ? (verdict.correct ? 'right' : 'wrong') : ''}`}>
+        {verdict?.correct && <Sparkles />}
         {verdict && (
           <div className={`feedback ${verdict.correct ? 'right' : 'wrong'}`}>
             <Coco mood={verdict.correct ? 'cheer' : 'oops'} size={54} />
@@ -454,6 +456,7 @@ export const StoryPlayer = ({
     return (
       <div className="finish">
         <Confetti />
+        <Fireworks />
         <Coco mood="cheer" size={140} />
         <h1>¡Historia completa!</h1>
         <p style={{ color: 'var(--ink-soft)', margin: 0 }}>{story.title}</p>

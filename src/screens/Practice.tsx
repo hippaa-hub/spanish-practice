@@ -40,7 +40,10 @@ export const Practice = ({
 
   return (
     <main className="screen">
-      <h1>Práctica</h1>
+      <div className="screen-hero">
+        <Coco mood="dance" size={76} />
+        <h1>Práctica</h1>
+      </div>
       <p className="lead">Extra practice. It gives XP like a lesson, and it is the fastest way to make a word stick.</p>
 
       {test && (

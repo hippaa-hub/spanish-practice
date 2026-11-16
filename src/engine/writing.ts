@@ -165,46 +165,56 @@ export const ME_PRESENTO: WritingTask = {
   ],
 };
 
+/**
+ * The Identity Iceberg — the same steps as her teacher's Unit 2 homework
+ * (set 10 Nov). The teacher wrote the task in English, so English is fine
+ * where she does not have the Spanish yet; Coco nudges her to use the
+ * Spanish she knows for the iceberg itself.
+ */
 export const ICEBERG: WritingTask = {
   id: 'w.iceberg',
   title: 'Mi iceberg de identidad',
   en: 'My Identity Iceberg — your Unit 2 homework',
   intro:
-    'Is a person more than how they look? Above the water: things people can see. Below the water: things they cannot. Then explain and reflect — in full sentences, in your own words.',
-  totalSentences: { min: 11, max: 24 },
+    'Can we really know someone just by looking at them? Above the water: what people can see. Below: what they cannot see straight away. Then explain three and answer your teacher’s questions. Use the Spanish you know — English is fine where you don’t have the words yet.',
+  totalSentences: { min: 15, max: 30 },
   parts: [
     {
       id: 'arriba',
       title: 'Encima del agua',
-      prompt: 'At least 3 things people can SEE about you.',
-      starters: ['Soy', 'Tengo el pelo', 'Tengo los ojos', 'Llevo gafas', 'Tengo … años'],
+      prompt: 'ABOVE THE WATER — what people can see when they meet you. At least THREE.',
+      starters: ['Soy', 'Tengo', 'años', 'Soy estudiante', 'I have'],
       zone: 'above',
-      rules: [{ kind: 'sentences', min: 3, label: 'At least 3 sentences' }],
+      rules: [{ kind: 'sentences', min: 3, label: 'At least 3 things people can see' }],
     },
     {
       id: 'abajo',
       title: 'Debajo del agua',
-      prompt: 'At least 6 things people CANNOT see: personality, family, languages, what you like.',
-      starters: ['Soy una persona', 'Me gusta', 'No me gusta', 'Hablo', 'Mi familia es', 'Soy muy'],
+      prompt: 'BELOW THE WATER — what people need time to discover about you. At least SIX.',
+      starters: ['Soy de', 'Vivo en', 'Hablo', 'Me gusta', 'No me gusta', 'Tengo un hermano'],
       zone: 'below',
-      rules: [{ kind: 'sentences', min: 6, label: 'At least 6 sentences' }],
+      rules: [
+        { kind: 'sentences', min: 6, label: 'At least 6 things people cannot see' },
+        { kind: 'any', words: ['soy', 'vivo', 'hablo', 'me gusta', 'tengo'], label: 'Some of them in Spanish' },
+      ],
     },
     {
       id: 'explica',
       title: 'Explica',
-      prompt: 'Explain three of them: say why, with porque.',
-      starters: ['Soy', 'Me gusta', 'porque'],
+      prompt: 'Choose THREE things from your iceberg and explain why they are important to who you are.',
+      starters: ['My family is important because', 'Me gusta', 'porque', 'because'],
       rules: [
-        { kind: 'sentences', min: 3, label: 'Explain 3 things' },
-        { kind: 'count', words: ['porque'], min: 1, label: 'Uses porque' },
+        { kind: 'sentences', min: 3, label: 'Three things explained' },
+        { kind: 'any', words: ['porque', 'because'], label: 'Says why (porque / because)' },
       ],
     },
     {
       id: 'reflexion',
       title: 'Reflexión',
-      prompt: 'Is a person more than how they look? Answer in full sentences.',
-      starters: ['Una persona es más que', 'Por fuera', 'pero por dentro', 'Creo que'],
-      rules: [{ kind: 'sentences', min: 2, label: 'At least 2 full sentences' }],
+      prompt:
+        'Answer in complete sentences: 1) Which part of your identity is most important to you? Why? 2) Is it easier for people to understand your visible or invisible identity? 3) Can two people look very similar but have different identities? Give an example.',
+      starters: ['The most important part is', 'It is easier to understand', 'Two people can look similar'],
+      rules: [{ kind: 'sentences', min: 3, label: 'All three questions answered' }],
     },
   ],
 };

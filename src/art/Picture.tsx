@@ -1,3 +1,5 @@
+import { paramShape, PEOPLE } from './morePictures';
+import { scenery } from './Scenery';
 /** Simple pictures drawn in code — no downloaded images (PLAN section 7). */
 
 const C = {
@@ -500,10 +502,17 @@ const numberShape = (n: string) => (
   </>
 );
 
+const resolve = (name: string): JSX.Element | undefined => {
+  if (name.startsWith('num:')) return numberShape(name.slice(4));
+  if (name.includes(':')) return paramShape(name);
+  return shapes[name] ?? PEOPLE[name] ?? scenery(name);
+};
+
+/** Is there a real drawing for this name (not the "?" fallback)? */
+export const hasPicture = (name: string): boolean => Boolean(resolve(name));
+
 export const Picture = ({ name, size = 72 }: { name?: string; size?: number }) => {
-  let body: JSX.Element | undefined;
-  if (name?.startsWith('num:')) body = numberShape(name.slice(4));
-  else if (name) body = shapes[name];
+  let body: JSX.Element | undefined = name ? resolve(name) : undefined;
   if (!body) body = shapes.question;
   return (
     <svg viewBox="0 0 100 100" width={size} height={size} role="img" aria-hidden="true">

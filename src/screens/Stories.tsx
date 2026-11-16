@@ -1,4 +1,5 @@
 import { Avatar } from '../art/Avatar';
+import { Coco } from '../art/Coco';
 import { Picture } from '../art/Picture';
 import { currentClass } from '../content';
 import { stories } from '../content/stories';
@@ -9,7 +10,10 @@ const TYPE: Record<Story['type'], string> = { dialogue: 'Diálogo', blog: 'Blog'
 
 export const Stories = ({ progress, onOpen }: { progress: Progress; onOpen: (story: Story) => void }) => (
   <main className="screen">
-    <h1>Historias</h1>
+    <div className="screen-hero">
+      <Coco mood="read" size={76} />
+      <h1>Historias</h1>
+    </div>
     <p className="lead">
       Short texts like the ones in your reading tests. Listen, read along, read alone — then answer questions
       like your teacher’s (Criterion B). Each one gives 15 XP.

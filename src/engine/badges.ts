@@ -110,3 +110,22 @@ export const weekReport = (p: Progress, anyDay = dayKey()): WeekReport => {
     bestDay: best,
   };
 };
+
+/**
+ * How ready she is for a test on this unit, 0 to 1: the average memory
+ * strength of the unit's words today (a word she has never met counts 0).
+ * It fades as days pass and grows as she practises — like real memory.
+ */
+export const readiness = (p: Progress, unitId: string, today = dayKey()): number => {
+  const unit = units.find((u) => u.id === unitId);
+  if (!unit) return 0;
+  const items = unit.items.filter((i) => unitId === 'u0' || (i.kind !== 'sound' && i.kind !== 'syllable'));
+  if (!items.length) return 0;
+  const total = items.reduce((sum, i) => {
+    const m = p.memory[i.id];
+    if (!m) return sum;
+    const days = Math.max(0, daysBetween(m.lastSeen, today));
+    return sum + 2 ** (-days / m.halfLife);
+  }, 0);
+  return total / items.length;
+};

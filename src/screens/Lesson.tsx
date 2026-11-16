@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Coco } from '../art/Coco';
 import { SpeakCard } from '../components/SpeakCard';
 import { Confetti } from '../art/Confetti';
+import { Fireworks, Sparkles } from '../art/Effects';
 import { sfxFinish, sfxRight, sfxWrong } from '../audio/sfx';
 import { speak, stopSpeaking } from '../audio/speech';
 import { getDialogue, getItem, getOddOneOut, getQuestion, getSentence, getSituation } from '../content';
@@ -228,6 +229,7 @@ export const Lesson = ({
     return (
       <div className="finish">
         <Confetti />
+        <Fireworks />
         <Coco mood="cheer" size={140} />
         <h1>¡Lección completa!</h1>
         <p style={{ color: 'var(--ink-soft)', margin: 0 }}>{title ?? `${unit?.title} · ${node?.title}`}</p>
@@ -334,6 +336,7 @@ export const Lesson = ({
       {/* Speaking has its own buttons inside the card. */}
       {e.kind !== 'speak' && (
       <div className={`footer ${verdict ? (verdict.correct ? 'right' : 'wrong') : ''}`}>
+        {verdict?.correct && <Sparkles />}
         {verdict && (
           <div className={`feedback ${verdict.correct ? 'right' : 'wrong'}`}>
             <Coco mood={verdict.correct ? 'cheer' : 'oops'} size={54} />
