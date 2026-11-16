@@ -1,0 +1,8 @@
+node_modules
+dist
+dev-dist
+.DS_Store
+# Private notes stay on this Mac (names, school, the teacher's material, marks)
+PLAN.md
+SPANISH_STUDIED.md
+GUIDE.md
