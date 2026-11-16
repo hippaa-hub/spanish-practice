@@ -4,8 +4,11 @@ import { emptyProgress, type Progress } from './types';
 
 const TAG = 'adele-spanish';
 
-export const exportText = (p: Progress, now = new Date()): string =>
-  JSON.stringify({ app: TAG, exported: now.toISOString(), progress: p }, null, 1);
+/** The parent code and the notification channel stay on this phone — they are not put in the file. */
+export const exportText = (p: Progress, now = new Date()): string => {
+  const { parentPin: _pin, notifyTopic: _topic, ...rest } = p;
+  return JSON.stringify({ app: TAG, exported: now.toISOString(), progress: rest }, null, 1);
+};
 
 export const exportName = (day: string) => `adele-spanish-progress-${day}.json`;
 

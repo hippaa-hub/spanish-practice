@@ -119,6 +119,16 @@ The "Esta semana en clase" card now points at Unit 9.
   opened in full. Google's font is cached too.
 - **Privacy**: no surname and no teacher's name anywhere in the app.
 
+**Parent tools** (16 Nov 2026) — the same as in her Exam Prep app:
+
+- A 4-digit **parent code** in front of *For parents* (stored scrambled;
+  `?parent-reset` forgets it).
+- **Notifications to a parent's phone** through the free ntfy service: when she
+  starts, when she reaches the daily goal, and when she leaves the app, with a
+  short report in numbers only. Off until a parent turns it on; the channel can
+  be the same one Exam Prep uses. Exported progress files never contain the
+  code or the channel.
+
 `GUIDE.md` (kept on the Mac, not published) explains installing on her phone,
 publishing, and the weekly update.
 

@@ -1,5 +1,6 @@
 import { addDays, dayKey, daysBetween } from './dates';
 import { newMemory, recordAnswer } from './memory';
+import { emptyActivity } from './notify';
 import type { ItemMemory, Progress } from './types';
 
 export const XP_LESSON = 10;
@@ -100,3 +101,18 @@ export const addMinutes = (p: Progress, ms: number, today = dayKey()): Progress 
 
 export const setGoal = (p: Progress, goal: number): Progress =>
   GOAL_OPTIONS.includes(goal) ? { ...p, dailyGoal: goal } : p;
+
+/** Count what she finished today, for the report to a parent's phone. */
+export const recordActivity = (
+  p: Progress,
+  kind: 'lessons' | 'stories' | 'speaking' | 'writing',
+  asked = 0,
+  right = 0,
+  today = dayKey(),
+): Progress => {
+  const a = p.activity?.[today] ?? emptyActivity();
+  return {
+    ...p,
+    activity: { ...p.activity, [today]: { ...a, [kind]: a[kind] + 1, asked: a.asked + asked, right: a.right + right } },
+  };
+};

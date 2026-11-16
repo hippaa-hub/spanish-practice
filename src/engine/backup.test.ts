@@ -21,6 +21,12 @@ describe('export and import', () => {
     expect(back.ok && back.progress.xpTotal).toBe(40);
   });
 
+  it('never puts the parent code or the notification channel in the file', () => {
+    const text = exportText({ ...emptyProgress(), parentPin: 'abc12345', notifyTopic: 'prep-k7m2-x9qd-4hwz' });
+    expect(text).not.toContain('abc12345');
+    expect(text).not.toContain('prep-k7m2');
+  });
+
   it('refuses files that are not ours', () => {
     expect(importText('hello').ok).toBe(false);
     expect(importText(JSON.stringify({ app: 'adele-maths', progress: {} })).ok).toBe(false);

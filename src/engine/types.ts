@@ -64,6 +64,12 @@ export type Progress = {
   minutes: Record<string, number>;
   /** Monday of the last week whose report card she has seen. */
   lastReportWeek: string | null;
+  /** YYYY-MM-DD -> what she did that day, for the report sent to a parent's phone. */
+  activity: Record<string, import('./notify').DayActivity>;
+  /** The parent code, scrambled. Unset until a parent chooses one. */
+  parentPin?: string;
+  /** Private ntfy channel for notifications to a parent's phone. Unset means off. */
+  notifyTopic?: string;
 };
 
 export type WritingDraft = {
@@ -92,4 +98,5 @@ export const emptyProgress = (): Progress => ({
   writing: {},
   minutes: {},
   lastReportWeek: null,
+  activity: {},
 });

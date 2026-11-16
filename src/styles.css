@@ -568,3 +568,20 @@ h1, h2, .instruction, .unit-banner h2, .finish h1, .story-head h2, .sheet h2 { f
 .sticker-es { font-size: 13px; font-weight: 900; text-align: center; line-height: 1.15; }
 .sticker-en { font-size: 10.5px; color: var(--ink-soft); text-align: center; line-height: 1.15; }
 .sticker .strength { width: 80%; height: 7px; margin-top: 3px; }
+
+/* ---------- parent gate ---------- */
+.gate { display: flex; flex-direction: column; align-items: center; }
+.gate-lock { font-size: 46px; margin-top: 8px; }
+.gate h1 { margin: 6px 0 2px; }
+.pin-dots { display: flex; gap: 14px; margin: 14px 0 4px; }
+.pin-dots i { width: 16px; height: 16px; border-radius: 50%; border: 3px solid var(--ink-soft); }
+.pin-dots i.on { background: var(--warm); border-color: var(--warm); }
+.gate-message { min-height: 20px; color: var(--red-dark); font-size: 14px; margin: 4px 0 8px; }
+.keypad { display: grid; grid-template-columns: repeat(3, 72px); gap: 12px; }
+.key { height: 64px; border-radius: 18px; border: 2px solid var(--line); border-bottom-width: 4px; background: var(--card); font-size: 26px; color: var(--ink); font-family: var(--title); }
+.key:active { transform: translateY(2px); border-bottom-width: 2px; }
+.key.del { font-size: 20px; color: var(--ink-soft); }
+.small-center { font-size: 12px; text-align: center; margin-top: 14px; }
+.notify-steps { padding-left: 20px; font-size: 14px; line-height: 1.5; }
+.channel { display: block; margin: 6px 0; padding: 8px 10px; background: #fff3e6; border-radius: 10px; font-size: 16px; font-weight: 900; letter-spacing: 0.04em; user-select: all; word-break: break-all; }
+.good { color: var(--green-dark); }

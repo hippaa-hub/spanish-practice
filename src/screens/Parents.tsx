@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { getItem, nextTest, units } from '../content';
 import { stories } from '../content/stories';
 import { exportName, exportText, importText } from '../engine/backup';
+import { isTopic, TOPIC_BYTES, topicFrom } from '../engine/notify';
 import { bestStreak, unitFinished, verbFormCount, verbsMastered, weekReport, wordsLearned } from '../engine/badges';
 import { addDays, dayKey } from '../engine/dates';
 import { strength } from '../engine/memory';
@@ -31,14 +32,119 @@ const weakest = (p: Progress, verbs: boolean) =>
 const textOf = (p: Progress, task: WritingTask) =>
   task.parts.map((part) => p.writing[task.id]?.parts[part.id] ?? '').join(' ').trim();
 
+/** Turning on notifications for a parent's own phone, and the steps to receive them. */
+const Notifications = ({
+  topic,
+  onTopic,
+  onTest,
+}: {
+  topic?: string;
+  onTopic: (topic: string | undefined) => void;
+  onTest: (topic: string) => Promise<boolean>;
+}) => {
+  const [test, setTest] = useState<'sending' | 'sent' | 'failed' | null>(null);
+  const [paste, setPaste] = useState('');
+  const [copied, setCopied] = useState(false);
+  const turnOn = () => onTopic(topicFrom(crypto.getRandomValues(new Uint8Array(TOPIC_BYTES))));
+  const sendTest = async () => {
+    if (!topic) return;
+    setTest('sending');
+    setTest((await onTest(topic)) ? 'sent' : 'failed');
+  };
+  const share = async () => {
+    if (!topic) return;
+    const text = `ntfy channel: ${topic}\nhttps://ntfy.sh/${topic}`;
+    try {
+      if (navigator.share) await navigator.share({ text });
+      else {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+      }
+    } catch {
+      // she cancelled the share sheet: nothing to do
+    }
+  };
+  const pasted = paste.trim().toLowerCase();
+
+  return (
+    <div className="card">
+      <h3>Notifications on my phone</h3>
+      {topic ? (
+        <>
+          <p style={{ marginTop: 0, fontSize: 14 }}>
+            <strong className="good">✓ On.</strong> You get a notification when she starts practising Spanish, and a report when she
+            reaches her daily goal or leaves the app.
+          </p>
+          <ol className="notify-steps">
+            <li>On <strong>your own</strong> phone, install the free app <strong>ntfy</strong> (App Store or Google Play).</li>
+            <li>
+              Open ntfy, tap <strong>+</strong> and type this channel name exactly:
+              <code className="channel">{topic}</code>
+            </li>
+            <li>Come back here and tap “Send a test”. Your phone should show it within a few seconds.</li>
+          </ol>
+          <p className="lead" style={{ fontSize: 12 }}>
+            Keep the channel name private: anyone who knows it can see the notifications. They hold minutes, XP and
+            scores — never a name.
+          </p>
+          <div style={{ display: 'grid', gap: 8 }}>
+            <button className="btn warm" onClick={sendTest} disabled={test === 'sending'}>Send a test</button>
+            {test === 'sent' && <p className="good" style={{ textAlign: 'center', margin: 0 }}>✓ Sent. Check your phone.</p>}
+            {test === 'failed' && <p className="lead" style={{ textAlign: 'center', margin: 0 }}>Could not send it. Is the internet on?</p>}
+            <button className="btn ghost" onClick={share}>Send the channel name to my phone</button>
+            {copied && <p className="lead" style={{ textAlign: 'center', margin: 0 }}>Copied. Paste it into a message to yourself.</p>}
+            <button className="link-btn" onClick={() => { setTest(null); onTopic(undefined); }}>Turn notifications off</button>
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="lead" style={{ marginTop: 0, fontSize: 14 }}>
+            Get a notification on your own phone when she starts practising, and a report when she reaches her daily
+            goal or leaves the app. She does not have to do anything.
+          </p>
+          <p className="lead" style={{ fontSize: 12 }}>
+            This uses the free ntfy service. While it is on, her minutes, XP and scores (never her name) are sent over the
+            internet to a private channel only your phone knows. While it is off, nothing leaves this phone.
+          </p>
+          <div style={{ display: 'grid', gap: 8 }}>
+            <button className="btn warm" onClick={turnOn}>Turn notifications on (new channel)</button>
+            <p className="lead" style={{ fontSize: 13, margin: '6px 0 0' }}>
+              Already get notifications from her Exam Prep app? Paste that channel name to get both in one place:
+            </p>
+            <input
+              className="typed"
+              style={{ fontSize: 16 }}
+              placeholder="prep-xxxx-xxxx-xxxx"
+              value={paste}
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck={false}
+              onChange={(e) => setPaste(e.target.value)}
+            />
+            <button className="btn ghost" disabled={!isTopic(pasted)} onClick={() => onTopic(pasted)}>
+              {paste && !isTopic(pasted) ? 'That is not a channel name' : 'Use this channel'}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
 export const Parents = ({
   progress,
   onImport,
   onBack,
+  onTopic,
+  onTest,
+  onChangeCode,
 }: {
   progress: Progress;
   onImport: (p: Progress) => void;
   onBack: () => void;
+  onTopic: (topic: string | undefined) => void;
+  onTest: (topic: string) => Promise<boolean>;
+  onChangeCode: () => void;
 }) => {
   const p = progress;
   const [message, setMessage] = useState<string | null>(null);
@@ -75,6 +181,8 @@ export const Parents = ({
       <button className="link-btn" onClick={onBack} style={{ paddingLeft: 0 }}>← Perfil</button>
       <h1>For parents</h1>
       <p className="lead">This page is for you, not Adele. Everything here is stored only on this phone.</p>
+
+      <Notifications topic={isTopic(p.notifyTopic) ? p.notifyTopic : undefined} onTopic={onTopic} onTest={onTest} />
 
       <div className="card">
         <h3>Practice</h3>
@@ -157,6 +265,12 @@ export const Parents = ({
           </label>
         </div>
         {message && <p className="lead" style={{ margin: '10px 0 0' }}>{message}</p>}
+      </div>
+
+      <div className="card">
+        <h3>Parent code</h3>
+        <p className="lead" style={{ margin: '0 0 8px', fontSize: 13 }}>This page asks for your 4-digit code every time.</p>
+        <button className="btn ghost" onClick={onChangeCode}>Change the code</button>
       </div>
 
       <div className="card">

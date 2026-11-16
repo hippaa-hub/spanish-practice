@@ -4,7 +4,10 @@ import { stopSpeaking } from './audio/speech';
 import { TopBar } from './components/TopBar';
 import type { PathNode, Unit } from './content/types';
 import { dayKey } from './engine/dates';
-import { addMinutes, addXp, finishNode, finishStory, finishWriting, nodeLevel, remember, saveDraft, setGoal, startDay } from './engine/progress';
+import { addMinutes, addXp, finishNode, finishStory, finishWriting, nodeLevel, recordActivity, remember, saveDraft, setGoal, startDay } from './engine/progress';
+import { ParentGate } from './components/ParentGate';
+import { isTopic, reportMessage, RESUME_MS, startNote, stopNote, testNote } from './engine/notify';
+import { ntfyPublish } from './storage/notify';
 import { emptyProgress, type Progress } from './engine/types';
 import { buildPractice, buildTestPrep } from './engine/lesson';
 import { nextTest } from './content';
@@ -52,10 +55,18 @@ export const App = () => {
   const [celebrate, setCelebrate] = useState<string[]>([]);
   const [report, setReport] = useState<ReturnType<typeof weekReport> | null>(null);
   const sessionStart = useRef<number | null>(null);
+  /** Opening the parent page again always asks for the code again. */
+  const [gateKey, setGateKey] = useState(0);
 
   useEffect(() => {
     loadProgress().then((p) => {
       let rolled = startDay(p);
+      // Opening the app with ?parent-reset at the end of the address forgets the parent code (nothing else).
+      if (new URLSearchParams(window.location.search).has('parent-reset')) {
+        const { parentPin: _forgotten, ...rest } = rolled;
+        rolled = rest as Progress;
+        window.history.replaceState(null, '', window.location.pathname);
+      }
       // Once a week, on the first visit, show last week's report card (if she practised).
       const thisWeek = weekStart(dayKey());
       if (rolled.lastReportWeek !== thisWeek) {
@@ -94,6 +105,84 @@ export const App = () => {
     }
   }, [progress, loaded, view.screen]);
 
+  // ---- Notifications for a parent's phone (off unless a channel is set in the parent view) ----
+  const studying = view.screen !== 'tab';
+  const what =
+    view.screen === 'lesson' ? `Lesson: ${view.node.title}`
+      : view.screen === 'practice-session' ? view.title
+        : view.screen === 'story' ? `Story: ${view.story.title}`
+          : view.screen === 'speak' ? `Speaking: ${view.set.title}`
+            : view.screen === 'write' ? `Writing: ${view.task.title}` : undefined;
+  /** One stretch of practice: from opening something until she reaches her goal or leaves the app. */
+  const sitting = useRef<{ startedAt: number; hiddenAt?: number } | null>(null);
+  const live = useRef({ progress, studying, what });
+  live.current = { progress, studying, what };
+
+  const sittingMinutes = () => (sitting.current ? (Date.now() - sitting.current.startedAt) / 60000 : 0);
+  const unsavedMinutes = () => (sessionStart.current ? Math.round((Date.now() - sessionStart.current) / 60000) : 0);
+
+  const beginSitting = () => {
+    const { progress: p, what: doing } = live.current;
+    if (!isTopic(p.notifyTopic) || sitting.current) return;
+    sitting.current = { startedAt: Date.now() };
+    void ntfyPublish(p.notifyTopic, startNote(new Date(), dayKey(), doing));
+  };
+  const reportSitting = (kind: 'goal' | 'stopped') => {
+    const p = live.current.progress;
+    if (!isTopic(p.notifyTopic) || !sitting.current) return;
+    void ntfyPublish(p.notifyTopic, stopNote(kind, new Date(), dayKey(), sittingMinutes(), reportMessage(p, dayKey(), unsavedMinutes())));
+  };
+
+  // She opened a lesson, story, speaking or writing.
+  useEffect(() => {
+    if (loaded && studying) beginSitting();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaded, studying, progress.notifyTopic]);
+
+  // She reached today's goal: send the report straight away.
+  const goalMet = progress.xpToday >= progress.dailyGoal;
+  const wasMet = useRef<boolean | null>(null);
+  useEffect(() => {
+    if (!loaded) return;
+    if (wasMet.current === false && goalMet && sitting.current) {
+      reportSitting('goal');
+      sitting.current = null;
+    }
+    wasMet.current = goalMet;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaded, goalMet]);
+
+  // She left the app (closed it, switched away, or the screen locked): send the report.
+  // Coming back within a few minutes carries on the same sitting quietly.
+  useEffect(() => {
+    const onHide = () => {
+      const s = sitting.current;
+      if (!s || s.hiddenAt !== undefined) return;
+      reportSitting('stopped');
+      s.hiddenAt = Date.now();
+    };
+    const onShow = () => {
+      const s = sitting.current;
+      if (!s || s.hiddenAt === undefined) return;
+      if (Date.now() - s.hiddenAt < RESUME_MS) {
+        s.hiddenAt = undefined;
+        return;
+      }
+      sitting.current = null;
+      if (live.current.studying) beginSitting();
+    };
+    const onVisibility = () => (document.visibilityState === 'hidden' ? onHide() : onShow());
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pagehide', onHide);
+    window.addEventListener('pageshow', onShow);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pagehide', onHide);
+      window.removeEventListener('pageshow', onShow);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (!loaded) return <div className="app" />;
 
   if (view.screen === 'story') {
@@ -103,7 +192,7 @@ export const App = () => {
           story={view.story}
           onFinish={(xp) =>
             setProgress((p) => {
-              const read = finishStory(addXp(p, xp, dayKey()), view.story.id);
+              const read = recordActivity(finishStory(addXp(p, xp, dayKey()), view.story.id), 'stories');
               return view.nodeId ? finishNode(read, view.nodeId, 4) : read;
             })
           }
@@ -122,7 +211,7 @@ export const App = () => {
         <SpeakSession
           set={view.set}
           onAnswer={(itemIds, correct) => setProgress((p) => remember(p, itemIds, correct))}
-          onFinish={(xp) => setProgress((p) => addXp(p, xp, dayKey()))}
+          onFinish={(xp) => setProgress((p) => recordActivity(addXp(p, xp, dayKey()), 'speaking'))}
           onQuit={() => {
             stopSpeaking();
             setView({ screen: 'tab', tab: 'speak' });
@@ -140,7 +229,9 @@ export const App = () => {
           progress={progress}
           onSave={(partId, text) => setProgress((p) => saveDraft(p, view.task.id, partId, text))}
           onFinish={() => {
-            const { progress: next, xp } = finishWriting(progress, view.task.id);
+            const done = finishWriting(progress, view.task.id);
+            const next = recordActivity(done.progress, 'writing');
+            const xp = done.xp;
             setProgress(view.nodeId ? finishNode(next, view.nodeId, 4) : next);
             return xp;
           }}
@@ -165,9 +256,9 @@ export const App = () => {
           title={lesson.title}
           progress={progress}
           onAnswer={(itemIds, correct) => setProgress((p) => remember(p, itemIds, correct))}
-          onFinish={({ xp }) =>
+          onFinish={({ xp, mistakes, asked }) =>
             setProgress((p) => {
-              const withXp = addXp(p, xp, dayKey());
+              const withXp = recordActivity(addXp(p, xp, dayKey()), 'lessons', asked, Math.max(0, asked - mistakes));
               return view.screen === 'lesson' ? finishNode(withXp, view.node.id, view.level) : withXp;
             })
           }
@@ -240,16 +331,37 @@ export const App = () => {
         <Profile
           progress={progress}
           onGoal={(g) => setProgress((p) => setGoal(p, g))}
-          onParents={() => setView({ screen: 'tab', tab: 'parents' })}
+          onParents={() => {
+            setGateKey((k) => k + 1);
+            setView({ screen: 'tab', tab: 'parents' });
+          }}
           onBack={() => setView({ screen: 'tab', tab: 'path' })}
         />
       )}
       {tab === 'parents' && (
-        <Parents
-          progress={progress}
-          onImport={(p) => setProgress(startDay(p))}
-          onBack={() => setView({ screen: 'tab', tab: 'profile' })}
-        />
+        <ParentGate
+          key={gateKey}
+          savedPin={progress.parentPin}
+          onSetPin={(parentPin) => setProgress((p) => ({ ...p, parentPin }))}
+          onClose={() => setView({ screen: 'tab', tab: 'profile' })}
+        >
+          {(changeCode) => (
+            <Parents
+              progress={progress}
+              // An imported file keeps this phone's code and notification channel.
+              onImport={(p) => setProgress((cur) => startDay({ ...p, parentPin: cur.parentPin, notifyTopic: cur.notifyTopic }))}
+              onBack={() => setView({ screen: 'tab', tab: 'profile' })}
+              onTopic={(notifyTopic) =>
+                setProgress((p) => {
+                  const { notifyTopic: _old, ...rest } = p;
+                  return notifyTopic ? { ...rest, notifyTopic } : (rest as Progress);
+                })
+              }
+              onTest={(t) => ntfyPublish(t, testNote(new Date()))}
+              onChangeCode={changeCode}
+            />
+          )}
+        </ParentGate>
       )}
 
       <nav className="tabbar">
