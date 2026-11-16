@@ -4,7 +4,8 @@ A Duolingo-style app that follows Adele's beginner Spanish class (IB MYP
 Phase 1). Built from `PLAN.md`; every word, phrase and verb
 comes from `SPANISH_STUDIED.md` — her own lessons, nothing invented.
 
-Mascot: **Coco**, a parrot drawn in code. Nothing from Duolingo is copied but
+Mascot: **Coco**, a grey Canadian Sphynx kitten, drawn in Canva as a cartoon
+sticker (8 poses in `public/coco/`). Nothing from Duolingo is copied but
 the shape of the idea: a path of short lessons, streaks, XP and celebrations.
 
 ## Running it on this Mac
@@ -150,3 +151,9 @@ Nothing else changes: the lesson builder and the memory engine pick it up.
   streak, with tests beside them.
 - `src/screens`, `src/components`, `src/art` — the screens, the pictures and Coco.
 - `src/storage` — saving progress on the device.
+
+**Cat look** (16 Nov 2026): Coco is a grey Sphynx made in Canva (happy, wave,
+cheer, oops, think, read, sleep, dance), with the app icon made from him. Lesson
+buttons have cat ears, paw prints walk down the road, XP is shown as 🐟 fish
+treats, and paws appear in the background, the progress bar, the active tab,
+sparkles, confetti, sticker stamps and the finish screen.

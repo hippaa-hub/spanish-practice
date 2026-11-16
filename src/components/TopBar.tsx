@@ -10,8 +10,8 @@ export const TopBar = ({ p, onToggleMute, onProfile }: { p: Progress; onToggleMu
         <span className="emoji">🔥</span>
         {p.streak}
       </div>
-      <div className="stat xp" title="XP today">
-        <span className="emoji">⚡</span>
+      <div className="stat xp" title="XP today (fish treats for Coco)">
+        <span className="emoji">🐟</span>
         {p.xpToday}
       </div>
       {p.freezes > 0 && (

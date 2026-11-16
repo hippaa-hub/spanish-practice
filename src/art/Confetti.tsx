@@ -1,3 +1,4 @@
+import { Paw } from './Paw';
 import { useMemo } from 'react';
 
 const COLOURS = ['#ff6b35', '#ffc93c', '#2ec4b6', '#8b5cf6', '#58cc02', '#f6a5c0'];
@@ -18,7 +19,25 @@ export const Confetti = ({ pieces = 60 }: { pieces?: number }) => {
   );
   return (
     <div className="confetti" aria-hidden="true">
-      {bits.map((b) => (
+      {bits.map((b) =>
+        b.id % 4 === 0 ? (
+          // every fourth piece is a little paw print
+          <span
+            key={b.id}
+            className="paw-bit"
+            style={{
+              left: `${b.left}%`,
+              width: b.size * 1.6,
+              height: b.size * 1.6,
+              background: 'none',
+              animationDelay: `${b.delay}s`,
+              animationDuration: `${b.duration}s`,
+              ['--spin' as string]: `${b.spin}deg`,
+            }}
+          >
+            <Paw size={b.size * 1.6} colour={b.colour} />
+          </span>
+        ) : (
         <span
           key={b.id}
           style={{
@@ -31,7 +50,8 @@ export const Confetti = ({ pieces = 60 }: { pieces?: number }) => {
             ['--spin' as string]: `${b.spin}deg`,
           }}
         />
-      ))}
+        ),
+      )}
     </div>
   );
 };

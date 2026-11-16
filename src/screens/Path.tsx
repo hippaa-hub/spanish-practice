@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Avatar } from '../art/Avatar';
 import { Coco } from '../art/Coco';
+import { PAW_PATH } from '../art/Paw';
 import { Picture } from '../art/Picture';
 import { WORLDS } from '../art/Scenery';
 import { CocoCoach } from '../components/CocoCoach';
@@ -94,12 +95,34 @@ const UnitMap = ({
     .join(' ');
   const world = WORLDS[unit.id];
 
+  // Paw prints walking down the road between the stops, left-right-left like a real cat.
+  const bez = (a: number, b: number, c: number, d: number, t: number) =>
+    (1 - t) ** 3 * a + 3 * (1 - t) ** 2 * t * b + 3 * (1 - t) * t ** 2 * c + t ** 3 * d;
+  const paws = spots.slice(1).flatMap((s, i) => {
+    const prev = spots[i];
+    const pts = [0.3, 0.5, 0.7].map((t, n) => {
+      const x = bez(prev.x, prev.x, s.x, s.x, t);
+      const y = bez(prev.y, prev.y + ROW / 2, s.y - ROW / 2, s.y, t);
+      const dx = bez(prev.x, prev.x, s.x, s.x, t + 0.01) - x;
+      const dy = bez(prev.y, prev.y + ROW / 2, s.y - ROW / 2, s.y, t + 0.01) - y;
+      const angle = (Math.atan2(dy, dx) * 180) / Math.PI + 90;
+      const side = n % 2 === 0 ? -1 : 1;
+      const len = Math.hypot(dx, dy) || 1;
+      return { x: x + (side * 5 * -dy) / len, y: y + (side * 5 * dx) / len, angle };
+    });
+    return pts;
+  });
+
   return (
     <div className="map" ref={ref} style={{ height }}>
       <svg className="road" width={width} height={height} aria-hidden="true">
         <path d={road} stroke="#e8dcc4" strokeWidth="30" fill="none" strokeLinecap="round" />
         <path d={road} stroke="#fffaf0" strokeWidth="22" fill="none" strokeLinecap="round" />
-        <path d={road} stroke="#e8dcc4" strokeWidth="3" fill="none" strokeDasharray="10 12" />
+        {paws.map((p, n) => (
+          <g key={n} transform={`translate(${p.x - 7.5} ${p.y - 7.5}) rotate(${p.angle} 7.5 7.5) scale(0.375)`}>
+            <path d={PAW_PATH} fill="#d6b88f" />
+          </g>
+        ))}
       </svg>
 
       {spots.map(({ node, offset, x, y }, i) => {

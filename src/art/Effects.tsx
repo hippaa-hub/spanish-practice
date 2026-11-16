@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-const SPARKS = ['✨', '⭐', '💫', '🌟'];
+const SPARKS = ['✨', '🐾', '⭐', '🐾', '💫', '🌟'];
 
 /** A little burst of stars over the footer when an answer is right. */
 export const Sparkles = ({ count = 10 }: { count?: number }) => {

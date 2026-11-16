@@ -501,7 +501,7 @@ h1, h2, .instruction, .unit-banner h2, .finish h1, .story-head h2, .sheet h2 { f
 @keyframes rise { from { transform: translateY(30px) scale(0.8); opacity: 0; } }
 
 /* Coco moves */
-.coco { overflow: visible; }
+.coco { overflow: visible; user-select: none; -webkit-user-drag: none; filter: drop-shadow(0 3px 0 rgba(0,0,0,0.06)); }
 .coco-happy, .coco-wave { animation: idle 2.6s ease-in-out infinite; }
 @keyframes idle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 .coco-cheer { animation: jumpspin 0.8s cubic-bezier(.34,1.56,.64,1); }
@@ -510,9 +510,8 @@ h1, h2, .instruction, .unit-banner h2, .finish h1, .story-head h2, .sheet h2 { f
 @keyframes tilt { 30% { transform: rotate(-10deg); } 60% { transform: rotate(6deg); } }
 .coco-dance { animation: dance 0.9s ease-in-out infinite; transform-origin: 50% 90%; }
 @keyframes dance { 0%,100% { transform: rotate(-8deg) translateY(0); } 50% { transform: rotate(8deg) translateY(-6px); } }
-.coco-sleep .zzz text { animation: zzz 2.4s ease-in-out infinite; }
-.coco-sleep .zzz text:nth-child(2) { animation-delay: 0.4s; }
-.coco-sleep .zzz text:nth-child(3) { animation-delay: 0.8s; }
+.coco-sleep { animation: breathe 3.2s ease-in-out infinite; transform-origin: 50% 90%; }
+@keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04, 0.97); } }
 @keyframes zzz { 0%,100% { opacity: 0.2; transform: translateY(2px); } 50% { opacity: 1; transform: translateY(-3px); } }
 .coco-read { animation: idle 3.4s ease-in-out infinite; }
 
@@ -585,3 +584,71 @@ h1, h2, .instruction, .unit-banner h2, .finish h1, .story-head h2, .sheet h2 { f
 .notify-steps { padding-left: 20px; font-size: 14px; line-height: 1.5; }
 .channel { display: block; margin: 6px 0; padding: 8px 10px; background: #fff3e6; border-radius: 10px; font-size: 16px; font-weight: 900; letter-spacing: 0.04em; user-select: all; word-break: break-all; }
 .good { color: var(--green-dark); }
+
+/* =====================================================================
+   CAT LOOK — paws, ears, fish (same layout, same buttons)
+   ===================================================================== */
+body {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='%23ff6b35' fill-opacity='0.07'%3E%3Cg transform='translate(14 18) rotate(-20 10 10) scale(0.5)'%3E%3Cpath d='M20 37c-6.5 0-11-3.6-11-8.2 0-4.6 4.9-9.8 11-9.8s11 5.2 11 9.8c0 4.6-4.5 8.2-11 8.2zM8.5 21.5c-2.6 0-4.5-2.6-4.5-5.6s1.9-5.4 4.5-5.4 4.5 2.5 4.5 5.4-1.9 5.6-4.5 5.6zM15.5 13.5c-2.6 0-4.5-2.7-4.5-6s1.9-6 4.5-6 4.5 2.7 4.5 6-1.9 6-4.5 6zM24.5 13.5c-2.6 0-4.5-2.7-4.5-6s1.9-6 4.5-6 4.5 2.7 4.5 6-1.9 6-4.5 6zM31.5 21.5c-2.6 0-4.5-2.6-4.5-5.6s1.9-5.4 4.5-5.4 4.5 2.5 4.5 5.4-1.9 5.6-4.5 5.6z'/%3E%3C/g%3E%3Cg transform='translate(74 70) rotate(18 10 10) scale(0.42)'%3E%3Cpath d='M20 37c-6.5 0-11-3.6-11-8.2 0-4.6 4.9-9.8 11-9.8s11 5.2 11 9.8c0 4.6-4.5 8.2-11 8.2zM8.5 21.5c-2.6 0-4.5-2.6-4.5-5.6s1.9-5.4 4.5-5.4 4.5 2.5 4.5 5.4-1.9 5.6-4.5 5.6zM15.5 13.5c-2.6 0-4.5-2.7-4.5-6s1.9-6 4.5-6 4.5 2.7 4.5 6-1.9 6-4.5 6zM24.5 13.5c-2.6 0-4.5-2.7-4.5-6s1.9-6 4.5-6 4.5 2.7 4.5 6-1.9 6-4.5 6zM31.5 21.5c-2.6 0-4.5-2.6-4.5-5.6s1.9-5.4 4.5-5.4 4.5 2.5 4.5 5.4-1.9 5.6-4.5 5.6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-size: 120px 120px;
+}
+
+/* lesson buttons are little cat heads: two ears on every stop */
+.map .node::before {
+  content: ''; position: absolute; left: 5px; right: 5px; top: -12px; height: 28px;
+  background: inherit; z-index: -1;
+  clip-path: polygon(0% 100%, 11% 0%, 34% 100%, 66% 100%, 89% 0%, 100% 100%);
+}
+.map .node::after {
+  content: ''; position: absolute; left: 13px; right: 13px; top: -6px; height: 13px;
+  background: #ffb3c4; z-index: -1; opacity: 0.85;
+  clip-path: polygon(0% 100%, 10% 0%, 24% 100%, 76% 100%, 90% 0%, 100% 100%);
+}
+.map .node.locked::after { background: #ece6dd; }
+.map .node.check::before { left: 6px; right: 6px; }
+
+/* a paw leads the progress bar */
+.bar > i::before {
+  content: ''; position: absolute; right: 3px; top: 0; width: 14px; height: 14px; z-index: 1;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath fill='%23ffffff' d='M20 37c-6.5 0-11-3.6-11-8.2 0-4.6 4.9-9.8 11-9.8s11 5.2 11 9.8c0 4.6-4.5 8.2-11 8.2zM8.5 21.5c-2.6 0-4.5-2.6-4.5-5.6s1.9-5.4 4.5-5.4 4.5 2.5 4.5 5.4-1.9 5.6-4.5 5.6zM15.5 13.5c-2.6 0-4.5-2.7-4.5-6s1.9-6 4.5-6 4.5 2.7 4.5 6-1.9 6-4.5 6zM24.5 13.5c-2.6 0-4.5-2.7-4.5-6s1.9-6 4.5-6 4.5 2.7 4.5 6-1.9 6-4.5 6zM31.5 21.5c-2.6 0-4.5-2.6-4.5-5.6s1.9-5.4 4.5-5.4 4.5 2.5 4.5 5.4-1.9 5.6-4.5 5.6z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.bar > i[style*="width: 0%"]::before { display: none; }
+
+/* the tab you are on gets a paw */
+.tabbar button { position: relative; }
+.tabbar button.on::after {
+  content: ''; position: absolute; top: 4px; right: 10px; width: 13px; height: 13px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath fill='%23ff9fb4' d='M20 37c-6.5 0-11-3.6-11-8.2 0-4.6 4.9-9.8 11-9.8s11 5.2 11 9.8c0 4.6-4.5 8.2-11 8.2zM8.5 21.5c-2.6 0-4.5-2.6-4.5-5.6s1.9-5.4 4.5-5.4 4.5 2.5 4.5 5.4-1.9 5.6-4.5 5.6zM15.5 13.5c-2.6 0-4.5-2.7-4.5-6s1.9-6 4.5-6 4.5 2.7 4.5 6-1.9 6-4.5 6zM24.5 13.5c-2.6 0-4.5-2.7-4.5-6s1.9-6 4.5-6 4.5 2.7 4.5 6-1.9 6-4.5 6zM31.5 21.5c-2.6 0-4.5-2.6-4.5-5.6s1.9-5.4 4.5-5.4 4.5 2.5 4.5 5.4-1.9 5.6-4.5 5.6z'/%3E%3C/svg%3E") center / contain no-repeat; transform: rotate(18deg);
+}
+
+/* strong stickers get a gold paw stamp */
+.sticker { position: relative; }
+.sticker.strong::after {
+  content: ''; position: absolute; top: -8px; right: -6px; width: 24px; height: 24px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath fill='%23ffc93c' d='M20 37c-6.5 0-11-3.6-11-8.2 0-4.6 4.9-9.8 11-9.8s11 5.2 11 9.8c0 4.6-4.5 8.2-11 8.2zM8.5 21.5c-2.6 0-4.5-2.6-4.5-5.6s1.9-5.4 4.5-5.4 4.5 2.5 4.5 5.4-1.9 5.6-4.5 5.6zM15.5 13.5c-2.6 0-4.5-2.7-4.5-6s1.9-6 4.5-6 4.5 2.7 4.5 6-1.9 6-4.5 6zM24.5 13.5c-2.6 0-4.5-2.7-4.5-6s1.9-6 4.5-6 4.5 2.7 4.5 6-1.9 6-4.5 6zM31.5 21.5c-2.6 0-4.5-2.6-4.5-5.6s1.9-5.4 4.5-5.4 4.5 2.5 4.5 5.4-1.9 5.6-4.5 5.6z'/%3E%3C/svg%3E") center / contain no-repeat; transform: rotate(20deg);
+  filter: drop-shadow(0 2px 0 rgba(0,0,0,0.1));
+}
+
+/* paw stamps around the big finish title */
+.finish h1::before, .finish h1::after {
+  content: ''; display: inline-block; width: 26px; height: 26px; vertical-align: middle; margin: 0 8px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath fill='%23ff9fb4' d='M20 37c-6.5 0-11-3.6-11-8.2 0-4.6 4.9-9.8 11-9.8s11 5.2 11 9.8c0 4.6-4.5 8.2-11 8.2zM8.5 21.5c-2.6 0-4.5-2.6-4.5-5.6s1.9-5.4 4.5-5.4 4.5 2.5 4.5 5.4-1.9 5.6-4.5 5.6zM15.5 13.5c-2.6 0-4.5-2.7-4.5-6s1.9-6 4.5-6 4.5 2.7 4.5 6-1.9 6-4.5 6zM24.5 13.5c-2.6 0-4.5-2.7-4.5-6s1.9-6 4.5-6 4.5 2.7 4.5 6-1.9 6-4.5 6zM31.5 21.5c-2.6 0-4.5-2.6-4.5-5.6s1.9-5.4 4.5-5.4 4.5 2.5 4.5 5.4-1.9 5.6-4.5 5.6z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.finish h1::before { transform: rotate(-20deg); }
+.finish h1::after { transform: rotate(20deg); }
+
+/* week card and Coco's bubble get a paw in the corner */
+.week-card, .coach .speech-bubble { position: relative; }
+.coach .speech-bubble::after {
+  content: ''; position: absolute; right: 10px; bottom: 8px; width: 18px; height: 18px; opacity: 0.35;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath fill='%23ff6b35' d='M20 37c-6.5 0-11-3.6-11-8.2 0-4.6 4.9-9.8 11-9.8s11 5.2 11 9.8c0 4.6-4.5 8.2-11 8.2zM8.5 21.5c-2.6 0-4.5-2.6-4.5-5.6s1.9-5.4 4.5-5.4 4.5 2.5 4.5 5.4-1.9 5.6-4.5 5.6zM15.5 13.5c-2.6 0-4.5-2.7-4.5-6s1.9-6 4.5-6 4.5 2.7 4.5 6-1.9 6-4.5 6zM24.5 13.5c-2.6 0-4.5-2.7-4.5-6s1.9-6 4.5-6 4.5 2.7 4.5 6-1.9 6-4.5 6zM31.5 21.5c-2.6 0-4.5-2.6-4.5-5.6s1.9-5.4 4.5-5.4 4.5 2.5 4.5 5.4-1.9 5.6-4.5 5.6z'/%3E%3C/svg%3E") center / contain no-repeat; transform: rotate(15deg);
+}
+.confetti .paw-bit { border-radius: 0; }
+
+/* unit banners: a big soft paw instead of the plain circle */
+.unit-banner::after {
+  border-radius: 0; width: 120px; height: 120px; right: -18px; top: -26px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath fill='rgba(255,255,255,0.16)' d='M20 37c-6.5 0-11-3.6-11-8.2 0-4.6 4.9-9.8 11-9.8s11 5.2 11 9.8c0 4.6-4.5 8.2-11 8.2zM8.5 21.5c-2.6 0-4.5-2.6-4.5-5.6s1.9-5.4 4.5-5.4 4.5 2.5 4.5 5.4-1.9 5.6-4.5 5.6zM15.5 13.5c-2.6 0-4.5-2.7-4.5-6s1.9-6 4.5-6 4.5 2.7 4.5 6-1.9 6-4.5 6zM24.5 13.5c-2.6 0-4.5-2.7-4.5-6s1.9-6 4.5-6 4.5 2.7 4.5 6-1.9 6-4.5 6zM31.5 21.5c-2.6 0-4.5-2.6-4.5-5.6s1.9-5.4 4.5-5.4 4.5 2.5 4.5 5.4-1.9 5.6-4.5 5.6z'/%3E%3C/svg%3E") center / contain no-repeat;
+  transform: rotate(-18deg);
+}
+.finish h1 { font-size: 29px; white-space: nowrap; }
+.finish h1::before, .finish h1::after { width: 20px; height: 20px; margin: 0 5px; }
