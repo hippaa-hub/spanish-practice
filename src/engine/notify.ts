@@ -95,6 +95,15 @@ export function stopNote(kind: 'goal' | 'stopped', when: Date, today: string, si
   };
 }
 
+/** Sent once a day, when she ticks off the last of today's tasks. */
+export function tasksNote(when: Date, today: string, report: string): Note {
+  return {
+    title: "Spanish: today's tasks finished",
+    message: `${formatShort(today)}, ${clockTime(when)}\n${report}`,
+    tags: ['white_check_mark', 'tada'],
+  };
+}
+
 export function testNote(when: Date): Note {
   return { title: 'Test from the Spanish app', message: `It works. Sent at ${clockTime(when)}.`, tags: ['bell'] };
 }

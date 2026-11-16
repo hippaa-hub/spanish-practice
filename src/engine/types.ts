@@ -70,6 +70,8 @@ export type Progress = {
   parentPin?: string;
   /** Private ntfy channel for notifications to a parent's phone. Unset means off. */
   notifyTopic?: string;
+  /** Today's three tasks, chosen in the morning. */
+  today?: import('./today').DayPlan;
 };
 
 export type WritingDraft = {

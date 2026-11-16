@@ -5,6 +5,8 @@ import { PAW_PATH } from '../art/Paw';
 import { Picture } from '../art/Picture';
 import { WORLDS } from '../art/Scenery';
 import { CocoCoach } from '../components/CocoCoach';
+import { TodayCard } from '../components/TodayCard';
+import type { DayTask } from '../engine/today';
 import { currentClass, units } from '../content';
 import { getStory } from '../content/stories';
 import type { PathNode, Unit } from '../content/types';
@@ -181,10 +183,12 @@ export const Path = ({
   progress,
   onStart,
   onTips,
+  onTask,
 }: {
   progress: Progress;
   onStart: (node: PathNode, unit: Unit) => void;
   onTips: (unit: Unit) => void;
+  onTask: (task: DayTask) => void;
 }) => {
   const next = nextNodeId(progress);
   const built = units.find((u) => u.id === (currentClass.unitId ?? currentClass.practiseUnitId));
@@ -213,6 +217,7 @@ export const Path = ({
       </div>
 
       <CocoCoach progress={progress} />
+      <TodayCard plan={progress.today} onTask={onTask} />
 
       {units.map((unit) => (
         <section

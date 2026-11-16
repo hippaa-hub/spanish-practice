@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isTopic, reportMessage, startNote, stopNote, topicFrom } from './notify';
+import { isTopic, reportMessage, startNote, stopNote, tasksNote, topicFrom } from './notify';
 import { pinMatches, scramblePin } from './pin';
 import { addXp, recordActivity } from './progress';
 import { emptyProgress } from './types';
@@ -46,5 +46,13 @@ describe('the report to a parent', () => {
     const stop = stopNote('goal', when, '2026-11-16', 12, 'Today: …');
     expect(stop.title).toContain('goal');
     expect(stop.message).toContain('this sitting: 12 min');
+  });
+});
+
+describe("today's tasks note", () => {
+  it('tells a parent the day is done, with the report', () => {
+    const n = tasksNote(new Date(2026, 10, 16, 18, 30), '2026-11-16', 'Today: 35 XP of 20');
+    expect(n.title).toBe("Spanish: today's tasks finished");
+    expect(n.message).toBe('Mon 16 Nov, 18:30\nToday: 35 XP of 20');
   });
 });

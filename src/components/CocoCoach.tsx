@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Coco, type CocoMood } from '../art/Coco';
 import { daysBetween, dayKey } from '../engine/dates';
+import { dayDone, nextTask } from '../engine/today';
 import type { Progress } from '../engine/types';
 
 /**
@@ -28,6 +29,19 @@ export const TIPS: { tag: string; text: string }[] = [
 
 const greeting = (p: Progress): { mood: CocoMood; line: string } => {
   const today = dayKey();
+  // Today's tasks come first: Coco always says what to do next.
+  const next = nextTask(p.today);
+  if (p.today?.day === today && dayDone(p.today)) {
+    return { mood: 'dance', line: '¡Hoy terminado! All three tasks done 🎉' };
+  }
+  if (next && p.today?.day === today) {
+    const n = p.today.tasks.indexOf(next) + 1;
+    const away = p.lastActiveDay ? daysBetween(p.lastActiveDay, today) : 0;
+    if (n === 1 && away >= 2 && p.xpToday === 0) {
+      return { mood: 'sleep', line: `¡Te echo de menos! Wake me up with task 1: ${next.title}.` };
+    }
+    return { mood: n === 1 ? 'wave' : 'cheer', line: `${n === 1 ? '¡Hola Adele! ' : '¡Muy bien! '}Task ${n} of ${p.today.tasks.length}: ${next.title}` };
+  }
   if (!p.lastGoalDay && p.xpTotal === 0) return { mood: 'wave', line: '¡Hola Adele! Tap the first lesson to start.' };
   if (p.xpToday >= p.dailyGoal) return { mood: 'dance', line: '¡Meta cumplida! Today’s goal is done 🎉' };
   const away = p.lastActiveDay ? daysBetween(p.lastActiveDay, today) : 0;

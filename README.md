@@ -164,3 +164,11 @@ The unit her class is on now (`currentClass.unitId`) is always open, still in
 order inside it, and anything already started stays open. Tapping a locked
 lesson says which one to finish first. Historias, Hablar, Escribir and
 Práctica are not locked.
+
+**Today's tasks** (16 Nov 2026): a "Hoy" list at the top of the map with three
+tasks a day (~15 min), chosen in the morning and fixed for the day, opening in
+order: the next lesson on the map; the next lesson of her class unit (Test prep
+in the week before a set test); Fix my mistakes / Words to review / a story.
+Finishing the work ticks the task off wherever it was started. When all three
+are done Coco dances, and a parent's phone gets "today's tasks finished".
+Logic in `src/engine/today.ts`.

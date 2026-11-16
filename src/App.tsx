@@ -6,11 +6,14 @@ import type { PathNode, Unit } from './content/types';
 import { dayKey } from './engine/dates';
 import { addMinutes, addXp, finishNode, finishStory, finishWriting, nodeLevel, recordActivity, remember, saveDraft, setGoal, startDay } from './engine/progress';
 import { ParentGate } from './components/ParentGate';
-import { isTopic, reportMessage, RESUME_MS, startNote, stopNote, testNote } from './engine/notify';
+import { isTopic, reportMessage, RESUME_MS, startNote, stopNote, tasksNote, testNote } from './engine/notify';
 import { ntfyPublish } from './storage/notify';
+import { completeTask, dayDone, ensureToday, type DayTask } from './engine/today';
+import { Coco } from './art/Coco';
+import { Confetti } from './art/Confetti';
 import { emptyProgress, type Progress } from './engine/types';
 import { buildPractice, buildTestPrep } from './engine/lesson';
-import { nextTest } from './content';
+import { getNode, nextTest } from './content';
 import type { Exercise } from './engine/types';
 import { Lesson } from './screens/Lesson';
 import { Path } from './screens/Path';
@@ -36,7 +39,7 @@ type Tab = 'path' | 'stories' | 'speak' | 'write' | 'practice' | 'words' | 'prof
 type View =
   | { screen: 'tab'; tab: Tab }
   | { screen: 'lesson'; node: PathNode; unit: Unit; level: number }
-  | { screen: 'practice-session'; title: string; exercises: Exercise[] }
+  | { screen: 'practice-session'; title: string; exercises: Exercise[]; kind?: PracticeKind | 'testprep'; from?: Tab }
   | { screen: 'story'; story: Story; nodeId?: string; from: Tab }
   | { screen: 'speak'; set: SpeakSet }
   | { screen: 'write'; task: WritingTask; nodeId?: string; from: Tab };
@@ -60,7 +63,7 @@ export const App = () => {
 
   useEffect(() => {
     loadProgress().then((p) => {
-      let rolled = startDay(p);
+      let rolled = ensureToday(startDay(p));
       // Opening the app with ?parent-reset at the end of the address forgets the parent code (nothing else).
       if (new URLSearchParams(window.location.search).has('parent-reset')) {
         const { parentPin: _forgotten, ...rest } = rolled;
@@ -183,6 +186,28 @@ export const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // A new day while the app stayed open: make today's tasks.
+  useEffect(() => {
+    if (loaded && view.screen === 'tab' && progress.today?.day !== dayKey()) {
+      setProgress((p) => ensureToday(startDay(p)));
+    }
+  }, [loaded, view.screen, progress.today?.day]);
+
+  // The last of today's tasks: celebrate on the map, and tell a parent's phone.
+  const finishedToday = progress.today?.day === dayKey() && dayDone(progress.today);
+  const wasFinished = useRef<boolean | null>(null);
+  const [todayParty, setTodayParty] = useState(false);
+  useEffect(() => {
+    if (!loaded) return;
+    if (wasFinished.current === false && finishedToday) {
+      setTodayParty(true);
+      const p = live.current.progress;
+      if (isTopic(p.notifyTopic)) void ntfyPublish(p.notifyTopic, tasksNote(new Date(), dayKey(), reportMessage(p, dayKey(), unsavedMinutes())));
+    }
+    wasFinished.current = finishedToday;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaded, finishedToday]);
+
   if (!loaded) return <div className="app" />;
 
   if (view.screen === 'story') {
@@ -192,7 +217,10 @@ export const App = () => {
           story={view.story}
           onFinish={(xp) =>
             setProgress((p) => {
-              const read = recordActivity(finishStory(addXp(p, xp, dayKey()), view.story.id), 'stories');
+              const read = completeTask(
+                recordActivity(finishStory(addXp(p, xp, dayKey()), view.story.id), 'stories'),
+                { story: view.story.id },
+              );
               return view.nodeId ? finishNode(read, view.nodeId, 4) : read;
             })
           }
@@ -232,7 +260,7 @@ export const App = () => {
             const done = finishWriting(progress, view.task.id);
             const next = recordActivity(done.progress, 'writing');
             const xp = done.xp;
-            setProgress(view.nodeId ? finishNode(next, view.nodeId, 4) : next);
+            setProgress(view.nodeId ? completeTask(finishNode(next, view.nodeId, 4), { node: view.nodeId }) : next);
             return xp;
           }}
           onQuit={() => setView({ screen: 'tab', tab: view.from })}
@@ -259,23 +287,56 @@ export const App = () => {
           onFinish={({ xp, mistakes, asked }) =>
             setProgress((p) => {
               const withXp = recordActivity(addXp(p, xp, dayKey()), 'lessons', asked, Math.max(0, asked - mistakes));
-              return view.screen === 'lesson' ? finishNode(withXp, view.node.id, view.level) : withXp;
+              if (view.screen === 'lesson') return completeTask(finishNode(withXp, view.node.id, view.level), { node: view.node.id });
+              const k = view.kind;
+              return k === 'fix' || k === 'review' || k === 'testprep' ? completeTask(withXp, { practice: k }) : withXp;
             })
           }
           onQuit={() => {
             stopSpeaking();
-            setView({ screen: 'tab', tab: view.screen === 'lesson' ? 'path' : 'practice' });
+            setView({ screen: 'tab', tab: view.screen === 'lesson' ? 'path' : (view.from ?? 'practice') });
           }}
         />
       </div>
     );
   }
 
-  const startPractice = (kind: PracticeKind) => {
+  const startPractice = (kind: PracticeKind, from: Tab = 'practice') => {
     const itemIds = practiceItems(progress, kind);
     const exercises = buildPractice({ itemIds, memory: progress.memory, today: dayKey() });
     if (exercises.length) {
-      setView({ screen: 'practice-session', title: PRACTICE_TITLES[kind], exercises });
+      setView({ screen: 'practice-session', title: PRACTICE_TITLES[kind], exercises, kind, from });
+    }
+  };
+
+  const startTestPrep = (from: Tab) => {
+    if (!nextTest) return;
+    const exercises = buildTestPrep({ unitIds: nextTest.units, memory: progress.memory, today: dayKey() });
+    setView({ screen: 'practice-session', title: `Test prep · ${nextTest.title}`, exercises, kind: 'testprep', from });
+  };
+
+  /** A stop on the map: a lesson, a story, or a writing task. */
+  const openNode = (node: PathNode, unit: Unit) => {
+    const story = node.story ? getStory(node.story) : undefined;
+    const task = node.write ? getTask(node.write) : undefined;
+    if (story) setView({ screen: 'story', story, nodeId: node.id, from: 'path' });
+    else if (task) setView({ screen: 'write', task, nodeId: node.id, from: 'path' });
+    else setView({ screen: 'lesson', node, unit, level: Math.min(4, nodeLevel(progress, node.id) + 1) });
+  };
+
+  /** One of today's tasks. */
+  const startTask = (t: DayTask) => {
+    if (t.kind === 'lesson' || t.kind === 'class') {
+      const found = getNode(t.nodeId);
+      if (found) openNode(found.node, found.unit);
+    } else if (t.kind === 'fix' || t.kind === 'review') {
+      startPractice(t.kind, 'path');
+      // nothing left to fix (she fixed it all elsewhere): the task is done
+      if (!practiceItems(progress, t.kind).length) setProgress((p) => completeTask(p, { practice: t.kind as 'fix' | 'review' }));
+    } else if (t.kind === 'testprep') startTestPrep('path');
+    else if (t.kind === 'story') {
+      const story = getStory(t.storyId);
+      if (story) setView({ screen: 'story', story, from: 'path' });
     }
   };
 
@@ -297,14 +358,9 @@ export const App = () => {
       {tab === 'path' && (
         <Path
           progress={progress}
-          onStart={(node, unit) => {
-            const story = node.story ? getStory(node.story) : undefined;
-            const task = node.write ? getTask(node.write) : undefined;
-            if (story) setView({ screen: 'story', story, nodeId: node.id, from: 'path' });
-            else if (task) setView({ screen: 'write', task, nodeId: node.id, from: 'path' });
-            else setView({ screen: 'lesson', node, unit, level: Math.min(4, nodeLevel(progress, node.id) + 1) });
-          }}
+          onStart={openNode}
           onTips={setTips}
+          onTask={startTask}
         />
       )}
       {tab === 'stories' && (
@@ -317,13 +373,9 @@ export const App = () => {
       {tab === 'practice' && (
         <Practice
           progress={progress}
-          onStart={startPractice}
+          onStart={(kind) => startPractice(kind)}
           onWords={() => setView({ screen: 'tab', tab: 'words' })}
-          onTestPrep={() => {
-            if (!nextTest) return;
-            const exercises = buildTestPrep({ unitIds: nextTest.units, memory: progress.memory, today: dayKey() });
-            setView({ screen: 'practice-session', title: `Test prep · ${nextTest.title}`, exercises });
-          }}
+          onTestPrep={() => startTestPrep('practice')}
         />
       )}
       {tab === 'words' && <Words progress={progress} onBack={() => setView({ screen: 'tab', tab: 'practice' })} />}
@@ -384,6 +436,20 @@ export const App = () => {
       </nav>
 
       {tips && <TipsSheet unit={tips} onClose={() => setTips(null)} />}
+      {todayParty && view.screen === 'tab' && !celebrate.length && (
+        <div className="sheet-backdrop center" onClick={() => setTodayParty(false)}>
+          <Confetti />
+          <div className="sheet pop" onClick={(e) => e.stopPropagation()}>
+            <Coco mood="dance" size={120} />
+            <h2>¡Hoy terminado!</h2>
+            <p className="lead" style={{ margin: 0 }}>
+              All three of today’s tasks are done. ¡Fantástico! Tomorrow Coco has three new ones for you.
+            </p>
+            <p className="lead" style={{ margin: 0, fontSize: 13 }}>Want more? Any open lesson on the map is a bonus.</p>
+            <button className="btn" onClick={() => setTodayParty(false)}>¡Gracias, Coco!</button>
+          </div>
+        </div>
+      )}
       {celebrate.length > 0 && <BadgeCelebration ids={celebrate} onClose={() => setCelebrate([])} />}
       {report && !celebrate.length && (
         <ReportCard report={report} title="Tu semana pasada" onClose={() => setReport(null)} />
