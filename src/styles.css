@@ -762,3 +762,23 @@ body {
 .avatar-pic.talking { box-shadow: 0 0 0 3px #ff9f1c; }
 .unit-banner.has-art::after { display: none; }
 .unit-banner.has-art .banner-side .tips-btn { backdrop-filter: blur(2px); }
+.unit-banner.has-art .banner-side { background: rgba(30, 30, 40, 0.28); border-radius: 16px; padding: 6px 6px 8px; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+.unit-banner.has-art h2, .unit-banner.has-art p, .unit-banner.has-art .eyebrow { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); }
+
+/* ---------- trail stops are paws (drawn pictures in public/paws) ---------- */
+.map .node, .map .node.done, .map .node.check, .map .node.story, .map .node.story.done, .map .node.locked {
+  width: 86px; height: 86px; margin: 0; background: none; border: none; box-shadow: none; border-radius: 0;
+}
+.map .node::before, .map .node::after { display: none; }
+.map .node .node-paw {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-index: 0; pointer-events: none;
+  filter: drop-shadow(0 5px 0 var(--unit, #c9c3b9));
+}
+.map .node.done .node-paw { filter: drop-shadow(0 5px 0 #d9a51f); }
+.map .node.locked .node-paw { filter: drop-shadow(0 5px 0 #c9c3b9); }
+.map .node.next .node-paw { filter: drop-shadow(0 5px 0 var(--unit, #ff6b35)) drop-shadow(0 0 10px rgba(255, 107, 53, 0.45)); }
+.map .node .node-icon { position: relative; z-index: 1; margin-top: 30px; font-size: 24px; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.2)); }
+.map .node .node-crowns { z-index: 2; bottom: -10px; }
+.map .node .start-bubble { z-index: 3; }
+.map .node:active { transform: translateY(3px); box-shadow: none; }
+.map .node.next, .map .node.sounds, .map .node.sounds.done { box-shadow: none; background: none; border: none; outline: none; }

@@ -1,3 +1,4 @@
+import { DRAWN_ART } from './artList';
 import { paramShape, PEOPLE } from './morePictures';
 import { scenery } from './Scenery';
 /** Simple pictures drawn in code — no downloaded images (PLAN section 7). */
@@ -516,18 +517,12 @@ export const hasPicture = (name: string): boolean => Boolean(resolve(name));
  * Where a Canva picture exists it is used; otherwise the code drawing below is.
  * Flags, numbers and day letters always use the code drawings, which are exact.
  */
-export const CANVA_ART = new Set<string>([
-  // drawn in Canva (watercolour anime style) — the rest are still drawn in code
-  'balloon', 'bell', 'bench', 'boat', 'cafe', 'city', 'cloud', 'fish', 'flower', 'fountain', 'house', 'iceberg',
-  'kite', 'lightning', 'mountain', 'palm', 'plane', 'school', 'sea', 'shell', 'tree', 'umbrella',
-  'wave', 'p-yo', 'p-nosotras',
-]);
 
 export const Picture = ({ name, size = 72 }: { name?: string; size?: number }) => {
-  if (name && CANVA_ART.has(name)) {
+  if (name && DRAWN_ART.has(name)) {
     return (
       <img
-        src={`${import.meta.env.BASE_URL}art/${name}.png`}
+        src={`${import.meta.env.BASE_URL}art/${name}.webp`}
         width={size}
         height={size}
         alt=""

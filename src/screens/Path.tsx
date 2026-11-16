@@ -5,6 +5,7 @@ import { Paw, PAW_PATH } from '../art/Paw';
 import { LEVELS, levelsReached, masteredCount, weekGain } from '../engine/mastery';
 import { Picture } from '../art/Picture';
 import { WORLDS } from '../art/Scenery';
+import { DRAWN_BANNERS } from '../art/artList';
 import { CocoCoach } from '../components/CocoCoach';
 import { TodayCard } from '../components/TodayCard';
 import type { ChoiceKind, DayTask } from '../engine/today';
@@ -146,16 +147,23 @@ const UnitMap = ({
             <button
               className={`node ${node.kind ?? ''} ${done ? 'done' : ''} ${isNext ? 'next' : ''} ${!open ? 'locked' : ''}`}
               style={{
-                left: x - 39,
-                top: y - 35,
-                ...(open && !done && node.kind !== 'story' ? { background: unit.colour } : {}),
+                left: x - 43,
+                top: y - 43,
+                ['--unit' as string]: unit.colour,
               }}
               onClick={() => (open ? onStart(node, unit) : onLocked(node))}
               aria-label={open ? node.title : `${node.title} (locked)`}
             >
               {isNext && <span className="start-bubble">EMPIEZA</span>}
               {classStart && <span className="start-bubble class">TU CLASE</span>}
-              <span className="node-icon">{icon}</span>
+              <img
+                className="node-paw"
+                src={`${import.meta.env.BASE_URL}paws/${done ? 'paw-done' : !open ? 'paw-locked' : 'paw'}.webp`}
+                alt=""
+                aria-hidden="true"
+                draggable={false}
+              />
+              {open && !done && <span className="node-icon">{icon}</span>}
               {node.kind !== 'story' && <span className="node-crowns">{level}/{CROWNS}</span>}
             </button>
 
@@ -243,11 +251,11 @@ export const Path = ({
           style={{ background: `linear-gradient(180deg, ${WORLDS[unit.id]?.ground ?? '#fff'} 0%, ${WORLDS[unit.id]?.ground ?? '#fff'}00 100%)` }}
         >
           <div
-            className={`unit-banner${WORLDS[unit.id]?.banner ? ' has-art' : ''}`}
+            className={`unit-banner${DRAWN_BANNERS.has(unit.id) ? ' has-art' : ''}`}
             style={
-              WORLDS[unit.id]?.banner
+              DRAWN_BANNERS.has(unit.id)
                 ? {
-                    background: `linear-gradient(90deg, ${unit.colour} 38%, ${unit.colour}cc 55%, ${unit.colour}00 85%), url(${import.meta.env.BASE_URL}banners/${WORLDS[unit.id]!.banner}) right center / cover no-repeat, ${unit.colour}`,
+                    background: `linear-gradient(90deg, ${unit.colour} 38%, ${unit.colour}cc 55%, ${unit.colour}00 85%), url(${import.meta.env.BASE_URL}banners/${unit.id}.webp) right center / cover no-repeat, ${unit.colour}`,
                   }
                 : { background: unit.colour }
             }

@@ -1,10 +1,11 @@
+import { DRAWN_CAST } from './artList';
 import type { Look } from '../content/types';
 
 /** A friendly round face for a story character, drawn from a few colours. */
 export const Avatar = ({ look, size = 44, talking = false }: { look: Look; size?: number; talking?: boolean }) =>
-  look.pic ? (
+  look.pic && DRAWN_CAST.has(look.pic) ? (
     <img
-      src={`${import.meta.env.BASE_URL}cast/${look.pic}.png`}
+      src={`${import.meta.env.BASE_URL}cast/${look.pic}.webp`}
       width={size}
       height={size}
       alt=""
