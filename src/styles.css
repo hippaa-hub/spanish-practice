@@ -687,3 +687,33 @@ body {
 .task.done b { text-decoration: line-through; text-decoration-color: rgba(0,0,0,0.25); }
 .task.locked { opacity: 0.55; }
 .today-done { margin: 10px 2px 2px; font-weight: 800; color: var(--green-dark); font-size: 14px; }
+
+/* ---------- Teach Coco ---------- */
+.teach-head { display: flex; align-items: flex-end; gap: 6px; margin-bottom: 8px; }
+.teach-head .speech-bubble { flex: 1; max-width: none; font-size: 14px; border-radius: 16px 16px 16px 4px; }
+.notebook {
+  display: flex; flex-wrap: wrap; gap: 6px; padding: 18px 14px; margin-bottom: 16px; border-radius: 14px;
+  background: repeating-linear-gradient(#fffdf8, #fffdf8 30px, #d9e8f7 31px); border: 2px solid var(--line);
+  box-shadow: inset 4px 0 0 #f6a5c0;
+}
+.nb-part {
+  border: none; background: transparent; font-family: 'Fredoka', var(--title); font-size: 22px; color: #2b4c7e;
+  padding: 2px 4px; border-radius: 8px; cursor: pointer;
+}
+.nb-part:disabled { cursor: default; color: #2b4c7e; }
+.nb-part.miss { background: #e9e3da; animation: shake 0.35s; }
+.nb-part.marked { color: var(--red); text-decoration: line-through; text-decoration-thickness: 3px; background: #ffeae4; }
+.nb-part.fixed { color: var(--green-dark); background: #eefce0; }
+.choice.reason { font-size: 14px; text-align: left; justify-content: flex-start; line-height: 1.35; }
+.teach-note { color: var(--warm-dark); font-weight: 800; font-size: 14px; }
+.task.open .task-mark { background: #ffe1c9; color: var(--warm-dark); }
+.task.choice-task { cursor: default; }
+.choice-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 6px; }
+.choice-pick {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px; border-radius: 14px;
+  border: 2px solid var(--line); border-bottom-width: 4px; background: var(--card); font-size: 11.5px; color: var(--ink);
+}
+.choice-pick span { font-size: 22px; }
+.choice-pick small { font-size: 9.5px; color: var(--ink-soft); line-height: 1.1; text-align: center; }
+.choice-pick:active { transform: scale(0.95); }
+.practice-card.teach-card { border-color: #ffd9bf; background: linear-gradient(120deg, #fff3e6, #fff); }

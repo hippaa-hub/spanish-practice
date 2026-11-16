@@ -1,5 +1,6 @@
 import { Paw } from '../art/Paw';
-import { dayDone, nextTask, type DayPlan, type DayTask } from '../engine/today';
+import { getStory } from '../content/stories';
+import { CHOICES, dayDone, nextTask, type ChoiceKind, type DayPlan, type DayTask } from '../engine/today';
 
 const ICON: Record<DayTask['kind'], string> = {
   lesson: '⭐',
@@ -8,6 +9,7 @@ const ICON: Record<DayTask['kind'], string> = {
   fix: '🔧',
   review: '🧠',
   story: '📖',
+  choice: '🎲',
 };
 
 const WHY: Record<DayTask['kind'], string> = {
@@ -17,12 +19,28 @@ const WHY: Record<DayTask['kind'], string> = {
   fix: 'words you got wrong',
   review: 'words that are fading',
   story: 'reading, like your tests',
+  choice: 'pick the one you feel like today',
 };
 
-/** Today's three tasks, in order: only the next one can be started. */
-export const TodayCard = ({ plan, onTask }: { plan?: DayPlan; onTask: (task: DayTask) => void }) => {
+const CHOICE_LABEL: Record<ChoiceKind, { icon: string; label: string }> = {
+  teach: { icon: '🐱', label: 'Teach Coco' },
+  story: { icon: '📖', label: 'A story' },
+  speak: { icon: '🎤', label: 'Speak' },
+  write: { icon: '✍️', label: 'Write' },
+};
+
+/** Today's three tasks. Any order: Coco suggests one, she decides. */
+export const TodayCard = ({
+  plan,
+  onTask,
+  onChoice,
+}: {
+  plan?: DayPlan;
+  onTask: (task: DayTask) => void;
+  onChoice: (choice: ChoiceKind, task: DayTask) => void;
+}) => {
   if (!plan?.tasks.length) return null;
-  const next = nextTask(plan);
+  const suggested = nextTask(plan);
   const done = plan.tasks.filter((t) => t.done).length;
   const finished = dayDone(plan);
   return (
@@ -32,16 +50,44 @@ export const TodayCard = ({ plan, onTask }: { plan?: DayPlan; onTask: (task: Day
           <Paw size={18} colour="#ff6b35" rotate={-15} /> Hoy
         </h3>
         <span>
-          {done}/{plan.tasks.length} · ~15 min
+          {done}/{plan.tasks.length} · ~15 min · any order
         </span>
       </div>
       <ol>
         {plan.tasks.map((t, i) => {
-          const state = t.done ? 'done' : t.id === next?.id ? 'next' : 'locked';
+          const state = t.done ? 'done' : t.id === suggested?.id ? 'next' : 'open';
+          if (t.kind === 'choice') {
+            const picked = t.picked ? CHOICE_LABEL[t.picked] : null;
+            const story = getStory(t.storyId);
+            return (
+              <li key={t.id}>
+                <div className={`task choice-task ${state}`}>
+                  <span className="task-mark">{t.done ? '✓' : '🎲'}</span>
+                  <span className="task-text">
+                    <b>
+                      {i + 1}. {t.done && picked ? `${picked.icon} ${picked.label}` : t.title}
+                    </b>
+                    <small>{t.done ? 'your choice — done' : WHY.choice}</small>
+                  </span>
+                </div>
+                {!t.done && (
+                  <div className="choice-row">
+                    {CHOICES.map((c) => (
+                      <button key={c} className="choice-pick" onClick={() => onChoice(c, t)}>
+                        <span>{CHOICE_LABEL[c].icon}</span>
+                        {CHOICE_LABEL[c].label}
+                        {c === 'story' && story && <small>{story.title}</small>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </li>
+            );
+          }
           return (
             <li key={t.id}>
-              <button className={`task ${state}`} disabled={state !== 'next'} onClick={() => onTask(t)}>
-                <span className="task-mark">{state === 'done' ? '✓' : state === 'next' ? '▶' : '🔒'}</span>
+              <button className={`task ${state}`} disabled={t.done} onClick={() => onTask(t)}>
+                <span className="task-mark">{t.done ? '✓' : '▶'}</span>
                 <span className="task-text">
                   <b>
                     {i + 1}. {ICON[t.kind]} {t.title}
@@ -53,11 +99,7 @@ export const TodayCard = ({ plan, onTask }: { plan?: DayPlan; onTask: (task: Day
           );
         })}
       </ol>
-      {finished && (
-        <p className="today-done">
-          ¡Hoy terminado! Today’s Spanish is done 🎉 — anything more is a bonus.
-        </p>
-      )}
+      {finished && <p className="today-done">¡Hoy terminado! Today’s Spanish is done 🎉 — anything more is a bonus.</p>}
     </section>
   );
 };

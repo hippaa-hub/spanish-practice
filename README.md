@@ -172,3 +172,9 @@ in the week before a set test); Fix my mistakes / Words to review / a story.
 Finishing the work ticks the task off wherever it was started. When all three
 are done Coco dances, and a parent's phone gets "today's tasks finished".
 Logic in `src/engine/today.ts`.
+
+**Motivation changes** (16 Nov 2026, from Jenia's research summary — autonomy
+and the protégé effect): today's three tasks can be done in any order, and task
+3 is her choice of Teach Coco / a story / speaking / writing. **Teach Coco**
+(`src/content/cocoMistakes.ts`, 35 sentences, units 1–9): she finds Coco's
+mistake, picks the fix and explains why; also in Práctica.

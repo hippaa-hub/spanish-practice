@@ -8,12 +8,16 @@ import { addMinutes, addXp, finishNode, finishStory, finishWriting, nodeLevel, r
 import { ParentGate } from './components/ParentGate';
 import { isTopic, reportMessage, RESUME_MS, startNote, stopNote, tasksNote, testNote } from './engine/notify';
 import { ntfyPublish } from './storage/notify';
-import { completeTask, dayDone, ensureToday, type DayTask } from './engine/today';
+import { completeTask, dayDone, ensureToday, type ChoiceKind, type DayTask } from './engine/today';
+import { pickMistakes } from './engine/teach';
+import type { CocoMistake } from './content/cocoMistakes';
+import { TeachCoco } from './screens/TeachCoco';
+import { ME_PRESENTO } from './engine/writing';
 import { Coco } from './art/Coco';
 import { Confetti } from './art/Confetti';
 import { emptyProgress, type Progress } from './engine/types';
 import { buildPractice, buildTestPrep } from './engine/lesson';
-import { getNode, nextTest } from './content';
+import { currentClass, getNode, nextTest, units } from './content';
 import type { Exercise } from './engine/types';
 import { Lesson } from './screens/Lesson';
 import { Path } from './screens/Path';
@@ -30,7 +34,7 @@ import { newBadges, weekReport, weekStart } from './engine/badges';
 import { Parents } from './screens/Parents';
 import { Profile } from './screens/Profile';
 import { addDays } from './engine/dates';
-import { SpeakHome, SpeakSession, type SpeakSet } from './screens/Speak';
+import { answerSet, repeatSet, SpeakHome, SpeakSession, type SpeakSet } from './screens/Speak';
 import { WriteCoach, WriteHome } from './screens/Write';
 import { getTask, type WritingTask } from './engine/writing';
 
@@ -41,7 +45,8 @@ type View =
   | { screen: 'lesson'; node: PathNode; unit: Unit; level: number }
   | { screen: 'practice-session'; title: string; exercises: Exercise[]; kind?: PracticeKind | 'testprep'; from?: Tab }
   | { screen: 'story'; story: Story; nodeId?: string; from: Tab }
-  | { screen: 'speak'; set: SpeakSet }
+  | { screen: 'speak'; set: SpeakSet; from?: Tab }
+  | { screen: 'teach'; mistakes: CocoMistake[]; from: Tab }
   | { screen: 'write'; task: WritingTask; nodeId?: string; from: Tab };
 
 const PRACTICE_TITLES: Record<PracticeKind, string> = {
@@ -218,8 +223,10 @@ export const App = () => {
           onFinish={(xp) =>
             setProgress((p) => {
               const read = completeTask(
-                recordActivity(finishStory(addXp(p, xp, dayKey()), view.story.id), 'stories'),
-                { story: view.story.id },
+                completeTask(recordActivity(finishStory(addXp(p, xp, dayKey()), view.story.id), 'stories'), {
+                  story: view.story.id,
+                }),
+                { choice: 'story' },
               );
               return view.nodeId ? finishNode(read, view.nodeId, 4) : read;
             })
@@ -233,16 +240,28 @@ export const App = () => {
     );
   }
 
+  if (view.screen === 'teach') {
+    return (
+      <div className="app">
+        <TeachCoco
+          mistakes={view.mistakes}
+          onFinish={(xp) => setProgress((p) => completeTask(recordActivity(addXp(p, xp, dayKey()), 'lessons'), { choice: 'teach' }))}
+          onQuit={() => setView({ screen: 'tab', tab: view.from })}
+        />
+      </div>
+    );
+  }
+
   if (view.screen === 'speak') {
     return (
       <div className="app">
         <SpeakSession
           set={view.set}
           onAnswer={(itemIds, correct) => setProgress((p) => remember(p, itemIds, correct))}
-          onFinish={(xp) => setProgress((p) => recordActivity(addXp(p, xp, dayKey()), 'speaking'))}
+          onFinish={(xp) => setProgress((p) => completeTask(recordActivity(addXp(p, xp, dayKey()), 'speaking'), { choice: 'speak' }))}
           onQuit={() => {
             stopSpeaking();
-            setView({ screen: 'tab', tab: 'speak' });
+            setView({ screen: 'tab', tab: view.from ?? 'speak' });
           }}
         />
       </div>
@@ -260,7 +279,8 @@ export const App = () => {
             const done = finishWriting(progress, view.task.id);
             const next = recordActivity(done.progress, 'writing');
             const xp = done.xp;
-            setProgress(view.nodeId ? completeTask(finishNode(next, view.nodeId, 4), { node: view.nodeId }) : next);
+            const withChoice = completeTask(next, { choice: 'write' });
+            setProgress(view.nodeId ? completeTask(finishNode(withChoice, view.nodeId, 4), { node: view.nodeId }) : withChoice);
             return xp;
           }}
           onQuit={() => setView({ screen: 'tab', tab: view.from })}
@@ -324,6 +344,23 @@ export const App = () => {
     else setView({ screen: 'lesson', node, unit, level: Math.min(4, nodeLevel(progress, node.id) + 1) });
   };
 
+  /** Task 3: her choice. */
+  const startChoice = (choice: ChoiceKind, t: DayTask) => {
+    const classUnit = units.find((u) => u.id === (currentClass.unitId ?? currentClass.practiseUnitId));
+    if (choice === 'teach') setView({ screen: 'teach', mistakes: pickMistakes(progress), from: 'path' });
+    else if (choice === 'story' && t.kind === 'choice') {
+      const story = getStory(t.storyId);
+      if (story) setView({ screen: 'story', story, from: 'path' });
+    } else if (choice === 'speak' && classUnit) {
+      const set = (classUnit.questions ?? []).length ? answerSet(classUnit) : repeatSet(classUnit);
+      setView({ screen: 'speak', set, from: 'path' });
+    } else if (choice === 'write') {
+      const node = classUnit?.nodes.find((n) => n.write);
+      const task = (node?.write && getTask(node.write)) || ME_PRESENTO;
+      setView({ screen: 'write', task, from: 'path' });
+    }
+  };
+
   /** One of today's tasks. */
   const startTask = (t: DayTask) => {
     if (t.kind === 'lesson' || t.kind === 'class') {
@@ -361,6 +398,7 @@ export const App = () => {
           onStart={openNode}
           onTips={setTips}
           onTask={startTask}
+          onChoice={startChoice}
         />
       )}
       {tab === 'stories' && (
@@ -375,6 +413,7 @@ export const App = () => {
           progress={progress}
           onStart={(kind) => startPractice(kind)}
           onWords={() => setView({ screen: 'tab', tab: 'words' })}
+          onTeach={() => setView({ screen: 'teach', mistakes: pickMistakes(progress), from: 'practice' })}
           onTestPrep={() => startTestPrep('practice')}
         />
       )}

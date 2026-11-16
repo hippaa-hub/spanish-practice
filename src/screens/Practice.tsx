@@ -11,11 +11,13 @@ export const Practice = ({
   onStart,
   onWords,
   onTestPrep,
+  onTeach,
 }: {
   progress: Progress;
   onStart: (kind: PracticeKind) => void;
   onWords: () => void;
   onTestPrep: () => void;
+  onTeach: () => void;
 }) => {
   const test = nextTest && nextTest.date >= dayKey() ? nextTest : null;
   const fix = practiceItems(progress, 'fix');
@@ -40,6 +42,14 @@ export const Practice = ({
           </span>
         </button>
       )}
+
+      <button className="practice-card teach-card" onClick={onTeach}>
+        <span className="ico">🐱</span>
+        <span>
+          <h3>Teach Coco</h3>
+          <p>Coco made mistakes in his homework. You are the teacher: find them, fix them, explain why.</p>
+        </span>
+      </button>
 
       <button className="practice-card" onClick={() => onStart('fix')} disabled={fix.length < 3}>
         <span className="ico">🔧</span>

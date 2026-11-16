@@ -40,7 +40,12 @@ const greeting = (p: Progress): { mood: CocoMood; line: string } => {
     if (n === 1 && away >= 2 && p.xpToday === 0) {
       return { mood: 'sleep', line: `¡Te echo de menos! Wake me up with task 1: ${next.title}.` };
     }
-    return { mood: n === 1 ? 'wave' : 'cheer', line: `${n === 1 ? '¡Hola Adele! ' : '¡Muy bien! '}Task ${n} of ${p.today.tasks.length}: ${next.title}` };
+    const doneCount = p.today.tasks.filter((t) => t.done).length;
+    const what = next.kind === 'choice' ? 'your choice — teach me, a story, speaking or writing' : next.title;
+    return {
+      mood: doneCount === 0 ? 'wave' : 'cheer',
+      line: `${doneCount === 0 ? '¡Hola Adele!' : `¡Muy bien! ${doneCount} of ${p.today.tasks.length} done.`} How about: ${what}? Or pick any task.`,
+    };
   }
   if (!p.lastGoalDay && p.xpTotal === 0) return { mood: 'wave', line: '¡Hola Adele! Tap the first lesson to start.' };
   if (p.xpToday >= p.dailyGoal) return { mood: 'dance', line: '¡Meta cumplida! Today’s goal is done 🎉' };

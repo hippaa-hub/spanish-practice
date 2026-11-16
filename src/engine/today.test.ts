@@ -7,17 +7,27 @@ const DAY = '2026-11-16';
 const classUnit = units.find((u) => u.id === currentClass.unitId)!;
 
 describe("today's tasks", () => {
-  it('gives three tasks: the next lesson, her class, then mistakes / review / a story', () => {
+  it('gives three tasks: the next lesson, her class, then her own choice', () => {
     const plan = planDay(emptyProgress(), DAY);
-    expect(plan.tasks.map((t) => t.kind)).toEqual(['lesson', 'class', 'story']);
+    expect(plan.tasks.map((t) => t.kind)).toEqual(['lesson', 'class', 'choice']);
     expect(plan.tasks[0].title).toBe(`Lección: ${units[0].nodes[0].title}`);
     expect(plan.tasks[1].title).toBe(`Tu clase: ${classUnit.nodes[0].title}`);
   });
 
-  it('puts Fix my mistakes third when she has mistakes to fix', () => {
-    const memory: Progress['memory'] = {};
-    for (const id of ['w.hola', 'w.adios', 'w.gracias']) memory[id] = { id, lastSeen: DAY, right: 0, wrong: 2, halfLife: 1 };
-    expect(planDay({ ...emptyProgress(), memory }, DAY).tasks[2].kind).toBe('fix');
+  it('lets her pick task 3: teaching Coco, a story, speaking or writing all count', () => {
+    for (const choice of ['teach', 'story', 'speak', 'write'] as const) {
+      const p = completeTask(ensureToday(emptyProgress(), DAY), { choice }, DAY);
+      const t3 = p.today!.tasks[2];
+      expect(t3.done, choice).toBe(true);
+      expect(t3.kind === 'choice' && t3.picked).toBe(choice);
+    }
+  });
+
+  it('lets her do the tasks in any order', () => {
+    let p = ensureToday(emptyProgress(), DAY);
+    p = completeTask(p, { choice: 'teach' }, DAY);
+    expect(p.today!.tasks.map((t) => t.done)).toEqual([false, false, true]);
+    expect(nextTask(p.today)?.id).toBe('t1');
   });
 
   it('keeps the same tasks all day, and makes new ones the next morning', () => {
@@ -31,13 +41,13 @@ describe("today's tasks", () => {
 
   it('ticks a task off when she finishes it, and says when the day is done', () => {
     let p = ensureToday(emptyProgress(), DAY);
-    const [t1, t2, t3] = p.today!.tasks;
+    const [t1, t2] = p.today!.tasks;
     expect(nextTask(p.today)?.id).toBe('t1');
     p = completeTask(p, { node: (t1 as { nodeId: string }).nodeId }, DAY);
     expect(nextTask(p.today)?.id).toBe('t2');
     p = completeTask(p, { node: (t2 as { nodeId: string }).nodeId }, DAY);
     expect(dayDone(p.today)).toBe(false);
-    p = completeTask(p, { story: (t3 as { storyId: string }).storyId }, DAY);
+    p = completeTask(p, { choice: 'story' }, DAY);
     expect(dayDone(p.today)).toBe(true);
   });
 
