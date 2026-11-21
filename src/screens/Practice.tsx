@@ -1,6 +1,7 @@
 import { Coco } from '../art/Coco';
 import { nextTest } from '../content';
 import { dayKey } from '../engine/dates';
+import { GAMES, type GameKind } from '../engine/games';
 import type { Progress } from '../engine/types';
 
 export { practiceItems, type PracticeKind } from '../engine/practice';
@@ -12,12 +13,14 @@ export const Practice = ({
   onWords,
   onTestPrep,
   onTeach,
+  onGame,
 }: {
   progress: Progress;
   onStart: (kind: PracticeKind) => void;
   onWords: () => void;
   onTestPrep: () => void;
   onTeach: () => void;
+  onGame: (game: GameKind) => void;
 }) => {
   const test = nextTest && nextTest.date >= dayKey() ? nextTest : null;
   const fix = practiceItems(progress, 'fix');
@@ -74,6 +77,17 @@ export const Practice = ({
           <p>{verbs.length >= 3 ? 'ser · llamarse · hablar · vivir · tener' : 'Do Unit 4 first'}</p>
         </span>
       </button>
+
+      <h2 className="section-title">Juegos</h2>
+      <div className="game-tiles">
+        {GAMES.map((g) => (
+          <button key={g.kind} className="game-tile" onClick={() => onGame(g.kind)}>
+            <span className="ico">{g.icon}</span>
+            <h3>{g.title}</h3>
+            <p>{g.en}</p>
+          </button>
+        ))}
+      </div>
 
       <button className="practice-card" onClick={onWords}>
         <span className="ico">📖</span>

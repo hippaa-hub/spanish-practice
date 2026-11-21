@@ -39,6 +39,10 @@ import { addDays } from './engine/dates';
 import { answerSet, repeatSet, SpeakHome, SpeakSession, type SpeakSet } from './screens/Speak';
 import { WriteCoach, WriteHome } from './screens/Write';
 import { getTask, type WritingTask } from './engine/writing';
+import { GAMES, type GameKind } from './engine/games';
+import { SoundCatcher } from './screens/games/SoundCatcher';
+import { SyllableBuilder } from './screens/games/SyllableBuilder';
+import { DialogueRace } from './screens/games/DialogueRace';
 
 type Tab = 'path' | 'stories' | 'speak' | 'write' | 'practice' | 'words' | 'profile' | 'parents' | 'progress';
 
@@ -49,7 +53,8 @@ type View =
   | { screen: 'story'; story: Story; nodeId?: string; from: Tab }
   | { screen: 'speak'; set: SpeakSet; from?: Tab }
   | { screen: 'teach'; mistakes: CocoMistake[]; from: Tab }
-  | { screen: 'write'; task: WritingTask; nodeId?: string; from: Tab };
+  | { screen: 'write'; task: WritingTask; nodeId?: string; from: Tab }
+  | { screen: 'game'; game: GameKind };
 
 const PRACTICE_TITLES: Record<PracticeKind, string> = {
   fix: 'Fix my mistakes',
@@ -122,7 +127,8 @@ export const App = () => {
       : view.screen === 'practice-session' ? view.title
         : view.screen === 'story' ? `Story: ${view.story.title}`
           : view.screen === 'speak' ? `Speaking: ${view.set.title}`
-            : view.screen === 'write' ? `Writing: ${view.task.title}` : undefined;
+            : view.screen === 'write' ? `Writing: ${view.task.title}`
+              : view.screen === 'game' ? `Game: ${GAMES.find((g) => g.kind === view.game)?.title}` : undefined;
   /** One stretch of practice: from opening something until she reaches her goal or leaves the app. */
   const sitting = useRef<{ startedAt: number; hiddenAt?: number } | null>(null);
   const live = useRef({ progress, studying, what });
@@ -296,6 +302,23 @@ export const App = () => {
     );
   }
 
+  if (view.screen === 'game') {
+    const Game = view.game === 'catcher' ? SoundCatcher : view.game === 'builder' ? SyllableBuilder : DialogueRace;
+    return (
+      <div className="app">
+        <Game
+          progress={progress}
+          onAnswer={(itemIds, correct) => setProgress((p) => remember(p, itemIds, correct))}
+          onFinish={(xp) => setProgress((p) => recordActivity(addXp(p, xp, dayKey()), 'lessons'))}
+          onQuit={() => {
+            stopSpeaking();
+            setView({ screen: 'tab', tab: 'practice' });
+          }}
+        />
+      </div>
+    );
+  }
+
   if (view.screen === 'lesson' || view.screen === 'practice-session') {
     const lesson =
       view.screen === 'lesson'
@@ -424,6 +447,7 @@ export const App = () => {
           onWords={() => setView({ screen: 'tab', tab: 'words' })}
           onTeach={() => setView({ screen: 'teach', mistakes: pickMistakes(progress), from: 'practice' })}
           onTestPrep={() => startTestPrep('practice')}
+          onGame={(game) => setView({ screen: 'game', game })}
         />
       )}
       {tab === 'words' && <Words progress={progress} onBack={() => setView({ screen: 'tab', tab: 'practice' })} />}

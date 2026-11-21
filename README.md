@@ -133,6 +133,26 @@ The "Esta semana en clase" card now points at Unit 9.
 `GUIDE.md` (kept on the Mac, not published) explains installing on her phone,
 publishing, and the weekly update.
 
+**Juegos** (22 Nov 2026): three games in Práctica, each about two minutes,
+with "Play again" and a Coco celebration at the end. Every sound, syllable,
+word and line comes from the unit files and the stories — nothing new — and a
+right answer strengthens that word in the memory engine like a lesson answer.
+No lives, no leaderboards; a miss shows the right answer and comes back later.
+
+- **Sound Catcher** 🫧 — hear a sound, a syllable or a word (Unit 0 first,
+  then whole words), tap its bubble before it floats away; 🔊 and 🐢 replay it.
+  Gets gently quicker every three right answers, never under five seconds, and
+  with "reduce motion" on the phone the bubbles simply appear.
+- **Syllable builder** 🧩 — me + sa = mesa: tap the syllable tiles in order,
+  with the word's picture and one or two extra tiles. The syllables come from a
+  small rule-based splitter (`src/engine/syllables.ts`, tested on 60+ of her
+  words); a word it gets wrong goes in `SYLLABLE_OVERRIDES` in
+  `src/content/games.ts`. Eight words, weakest first.
+- **Coco's dialogue race** 🏁 — a scrambled dialogue from the Unit 6 "order the
+  dialogue" data or a slice of a dialogue story; she drags the lines or uses
+  the ▲▼ arrows while a clock runs (only a score, never a cut-off). When it is
+  right the dialogue plays back line by line.
+
 ## Adding a unit when her class moves on
 
 1. Add the new words, phrases and sentences to `SPANISH_STUDIED.md`.

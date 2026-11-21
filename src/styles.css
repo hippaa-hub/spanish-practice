@@ -782,3 +782,68 @@ body {
 .map .node .start-bubble { z-index: 3; }
 .map .node:active { transform: translateY(3px); box-shadow: none; }
 .map .node.next, .map .node.sounds, .map .node.sounds.done { box-shadow: none; background: none; border: none; outline: none; }
+
+/* ---------- Juegos (Práctica) ---------- */
+.game-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+.game-tile {
+  border: 2px solid var(--line); border-bottom-width: 4px; background: var(--card); border-radius: 18px;
+  padding: 12px 8px 10px; color: var(--ink); display: flex; flex-direction: column; align-items: center; gap: 4px;
+  min-height: 130px; text-align: center; box-shadow: 0 3px 0 rgba(0,0,0,0.04);
+  transition: transform 0.12s cubic-bezier(.34,1.56,.64,1);
+}
+.game-tile:active { transform: scale(0.95) translateY(2px); }
+.game-tile .ico { font-size: 34px; }
+.game-tile h3 { margin: 0; font-size: 14px; line-height: 1.2; }
+.game-tile p { margin: 0; font-size: 11px; color: var(--ink-soft); font-weight: 700; line-height: 1.3; }
+
+/* Sound Catcher */
+.catcher-tools { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; }
+.catcher-tools .speaker { margin: 0; }
+.bubbles { position: relative; height: 340px; overflow: hidden; border-radius: 22px; background: linear-gradient(180deg, #e9fbf9, #fff7ef); border: 2px solid var(--line); }
+.bubble {
+  position: absolute; bottom: -90px; transform: translateX(-50%); width: 82px; height: 82px; border-radius: 50%;
+  border: 3px solid #bdeee8; background: radial-gradient(circle at 35% 30%, #ffffff, #d7f6f2 70%); color: var(--ink);
+  font-size: 24px; font-weight: 900; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 0 rgba(37,164,152,0.25); animation: floatUp linear forwards;
+}
+@keyframes floatUp { from { bottom: -90px; } to { bottom: 110%; } }
+.bubbles.paused .bubble { animation-play-state: paused; }
+.bubbles.still .bubble { animation: none; bottom: auto; top: 50%; transform: translate(-50%, -50%); }
+.bubble { aspect-ratio: 1; height: auto; }
+/* the right one is brought back into view, even after it floated off */
+.bubble.right { border-color: var(--green); background: #eefce0; animation: none; bottom: auto; top: 50%; transform: translate(-50%, -50%) scale(1.15); z-index: 1; }
+.bubble.wrong { border-color: var(--red); background: #ffeae4; animation-play-state: paused; }
+.bubble.faded { opacity: 0.35; }
+@media (prefers-reduced-motion: reduce) {
+  .bubble { animation: none; bottom: auto; top: 50%; transform: translate(-50%, -50%); }
+  .bubble.right { transform: translate(-50%, -50%) scale(1.15); }
+}
+@media (max-width: 380px) {
+  .game-tile p { display: none; }
+  .bubble { font-size: 20px; }
+}
+
+/* Syllable builder */
+.builder-card { display: flex; align-items: center; gap: 16px; background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 14px; margin-bottom: 16px; }
+.builder-hint { font-size: 22px; font-weight: 900; }
+.builder-hint .word { color: var(--warm); }
+.builder-line { justify-content: center; gap: 10px; }
+.tile.slot { min-width: 64px; text-align: center; color: var(--ink-soft); background: #f3efe8; border-style: dashed; font-size: 22px; padding: 12px 14px; }
+.tile.slot.filled { color: var(--ink); background: #eefce0; border-color: var(--green); border-style: solid; }
+.tile.big { font-size: 24px; padding: 14px 20px; min-width: 72px; min-height: 60px; }
+.tile.shake { animation: shake 0.4s; border-color: var(--red); background: #ffeae4; }
+.tile-bank .tile.big { flex: 1 1 28%; }
+
+/* Coco's dialogue race */
+.race-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.race-clock { font-size: 18px; font-weight: 900; color: var(--teal-dark); background: #e9fbf9; border-radius: 999px; padding: 6px 12px; white-space: nowrap; }
+.dialogue.race .line { padding: 8px 8px 8px 12px; cursor: grab; }
+.dialogue.race .line.dragging { opacity: 0.5; }
+.dialogue.race .line.now { border-color: var(--warm); background: #fff3e6; }
+.race-text { flex: 1; border: none; background: none; text-align: left; font-size: 16px; font-weight: 700; color: var(--ink); padding: 6px 0; }
+.race-arrows { display: flex; flex-direction: column; gap: 4px; }
+.race-arrows button {
+  border: 2px solid var(--line); border-bottom-width: 3px; background: var(--card); border-radius: 10px;
+  width: 46px; height: 36px; font-size: 14px; color: var(--ink);
+}
+.race-arrows button:disabled { opacity: 0.3; }
